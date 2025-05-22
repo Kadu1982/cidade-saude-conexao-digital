@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -25,6 +25,8 @@ import UnidadeField from "./consulta/UnidadeField";
 
 export const AgendarConsulta = () => {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const form = useForm<z.infer<typeof consultaFormSchema>>({
     resolver: zodResolver(consultaFormSchema),
     defaultValues: {
@@ -36,7 +38,10 @@ export const AgendarConsulta = () => {
       horario: "",
       prioridade: "normal",
     },
+    mode: "onSubmit",
   });
+
+  const hasErrors = Object.keys(form.formState.errors).length > 0;
 
   const handlePatientSelect = (patient: { name: string, cartaoSus: string }) => {
     form.setValue("paciente", patient.name);
@@ -44,17 +49,40 @@ export const AgendarConsulta = () => {
   };
 
   function onSubmit(values: z.infer<typeof consultaFormSchema>) {
-    console.log(values);
-    toast({
-      title: "Consulta agendada com sucesso",
-      description: `Data: ${format(values.data, "dd/MM/yyyy")} às ${values.horario}`,
-    });
-    form.reset();
+    setIsSubmitting(true);
+    
+    // Simulating API call
+    setTimeout(() => {
+      console.log(values);
+      toast({
+        title: "Consulta agendada com sucesso",
+        description: `Data: ${format(values.data, "dd/MM/yyyy")} às ${values.horario}`,
+      });
+      form.reset();
+      setIsSubmitting(false);
+    }, 1000);
   }
+
+  const handleFormSubmitError = () => {
+    toast({
+      title: "Erro no formulário",
+      description: "Por favor, corrija os campos destacados",
+      variant: "destructive",
+    });
+
+    // Focus on the first field with an error
+    const firstError = Object.keys(form.formState.errors)[0];
+    if (firstError) {
+      form.setFocus(firstError as never);
+    }
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form 
+        onSubmit={form.handleSubmit(onSubmit, handleFormSubmitError)} 
+        className="space-y-6"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <AgendamentoFormHeader 
             form={form}
@@ -69,7 +97,11 @@ export const AgendarConsulta = () => {
           <PrioridadeField form={form} />
         </div>
 
-        <FormActions onReset={() => form.reset()} />
+        <FormActions 
+          onReset={() => form.reset()} 
+          isSubmitting={isSubmitting}
+          hasErrors={hasErrors && form.formState.isSubmitted}
+        />
       </form>
     </Form>
   );
