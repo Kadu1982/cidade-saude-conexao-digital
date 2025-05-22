@@ -27,6 +27,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
+import PatientSearch from "@/components/shared/PatientSearch";
 
 const formSchema = z.object({
   paciente: z.string().min(1, "Nome do paciente é obrigatório"),
@@ -62,6 +63,11 @@ export const AgendarConsulta = () => {
     },
   });
 
+  const handlePatientSelect = (patient: { name: string, cartaoSus: string }) => {
+    form.setValue("paciente", patient.name);
+    form.setValue("cartaoSus", patient.cartaoSus);
+  };
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     toast({
@@ -75,19 +81,26 @@ export const AgendarConsulta = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="paciente"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome do Paciente</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nome completo" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="md:col-span-2">
+            <FormLabel>Nome do Paciente</FormLabel>
+            <PatientSearch 
+              onSelectPatient={handlePatientSelect}
+              placeholder="Digite o nome do paciente..."
+              className="mb-2"
+            />
+            <FormField
+              control={form.control}
+              name="paciente"
+              render={({ field }) => (
+                <FormItem className="hidden">
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           
           <FormField
             control={form.control}
