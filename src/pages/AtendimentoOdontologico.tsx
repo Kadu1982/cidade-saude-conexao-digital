@@ -6,7 +6,7 @@ import { OdontogramaDigital } from "@/components/odontologico/OdontogramaDigital
 import { ProntuarioEletronico } from "@/components/shared/ProntuarioEletronico";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Tooth } from "lucide-react";
+import { Stethoscope } from "lucide-react";
 
 const AtendimentoOdontologico = () => {
   const { toast } = useToast();
@@ -21,7 +21,7 @@ const AtendimentoOdontologico = () => {
   return (
     <div className="container mx-auto py-6">
       <h1 className="text-3xl font-bold mb-6 flex items-center">
-        <Tooth className="mr-2 h-6 w-6" />
+        <Stethoscope className="mr-2 h-6 w-6" />
         Atendimento Odontológico
       </h1>
       
