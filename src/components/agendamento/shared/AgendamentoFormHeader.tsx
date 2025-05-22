@@ -8,11 +8,13 @@ import { UseFormReturn } from "react-hook-form";
 interface AgendamentoFormHeaderProps {
   form: UseFormReturn<any>;
   handlePatientSelect: (patient: { name: string, cartaoSus: string }) => void;
+  isSubmitting?: boolean;
 }
 
 const AgendamentoFormHeader: React.FC<AgendamentoFormHeaderProps> = ({
   form,
-  handlePatientSelect
+  handlePatientSelect,
+  isSubmitting = false
 }) => {
   return (
     <div className="md:col-span-2">

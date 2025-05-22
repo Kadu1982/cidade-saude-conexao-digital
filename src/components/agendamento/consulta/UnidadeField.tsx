@@ -7,9 +7,10 @@ import { UNIDADES } from "../utils/mockData";
 
 interface UnidadeFieldProps {
   form: UseFormReturn<any>;
+  isSubmitting?: boolean;
 }
 
-const UnidadeField: React.FC<UnidadeFieldProps> = ({ form }) => {
+const UnidadeField: React.FC<UnidadeFieldProps> = ({ form, isSubmitting = false }) => {
   return (
     <FormField
       control={form.control}
@@ -17,7 +18,7 @@ const UnidadeField: React.FC<UnidadeFieldProps> = ({ form }) => {
       render={({ field }) => (
         <FormItem>
           <FormLabel>Unidade de Saúde</FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione a unidade" />

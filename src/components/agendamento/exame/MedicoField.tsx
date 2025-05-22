@@ -7,9 +7,10 @@ import { MEDICOS } from "../utils/mockData";
 
 interface MedicoFieldProps {
   form: UseFormReturn<any>;
+  isSubmitting?: boolean;
 }
 
-const MedicoField: React.FC<MedicoFieldProps> = ({ form }) => {
+const MedicoField: React.FC<MedicoFieldProps> = ({ form, isSubmitting = false }) => {
   return (
     <FormField
       control={form.control}
@@ -17,7 +18,7 @@ const MedicoField: React.FC<MedicoFieldProps> = ({ form }) => {
       render={({ field }) => (
         <FormItem>
           <FormLabel>Médico Solicitante</FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o médico" />

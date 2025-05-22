@@ -7,9 +7,10 @@ import { ESPECIALIDADES } from "../utils/mockData";
 
 interface EspecialidadeFieldProps {
   form: UseFormReturn<any>;
+  isSubmitting?: boolean;
 }
 
-const EspecialidadeField: React.FC<EspecialidadeFieldProps> = ({ form }) => {
+const EspecialidadeField: React.FC<EspecialidadeFieldProps> = ({ form, isSubmitting = false }) => {
   return (
     <FormField
       control={form.control}
@@ -17,7 +18,7 @@ const EspecialidadeField: React.FC<EspecialidadeFieldProps> = ({ form }) => {
       render={({ field }) => (
         <FormItem>
           <FormLabel>Especialidade</FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione a especialidade" />

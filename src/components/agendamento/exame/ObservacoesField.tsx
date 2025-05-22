@@ -6,9 +6,10 @@ import { UseFormReturn } from "react-hook-form";
 
 interface ObservacoesFieldProps {
   form: UseFormReturn<any>;
+  isSubmitting?: boolean;
 }
 
-const ObservacoesField: React.FC<ObservacoesFieldProps> = ({ form }) => {
+const ObservacoesField: React.FC<ObservacoesFieldProps> = ({ form, isSubmitting = false }) => {
   return (
     <FormField
       control={form.control}
@@ -21,6 +22,7 @@ const ObservacoesField: React.FC<ObservacoesFieldProps> = ({ form }) => {
               placeholder="Observações sobre o exame, preparos necessários, etc."
               className="resize-none min-h-[100px]" 
               {...field} 
+              disabled={isSubmitting}
             />
           </FormControl>
           <FormDescription>

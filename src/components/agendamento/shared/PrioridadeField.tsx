@@ -6,9 +6,10 @@ import { UseFormReturn } from "react-hook-form";
 
 interface PrioridadeFieldProps {
   form: UseFormReturn<any>;
+  isSubmitting?: boolean;
 }
 
-const PrioridadeField: React.FC<PrioridadeFieldProps> = ({ form }) => {
+const PrioridadeField: React.FC<PrioridadeFieldProps> = ({ form, isSubmitting = false }) => {
   return (
     <FormField
       control={form.control}
@@ -16,7 +17,7 @@ const PrioridadeField: React.FC<PrioridadeFieldProps> = ({ form }) => {
       render={({ field }) => (
         <FormItem>
           <FormLabel>Prioridade</FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione a prioridade" />

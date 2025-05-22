@@ -14,9 +14,10 @@ import { UseFormReturn } from "react-hook-form";
 interface DataHorarioFieldsProps {
   form: UseFormReturn<any>;
   horarios: string[];
+  isSubmitting?: boolean;
 }
 
-const DataHorarioFields: React.FC<DataHorarioFieldsProps> = ({ form, horarios }) => {
+const DataHorarioFields: React.FC<DataHorarioFieldsProps> = ({ form, horarios, isSubmitting = false }) => {
   return (
     <>
       <FormField
@@ -34,6 +35,7 @@ const DataHorarioFields: React.FC<DataHorarioFieldsProps> = ({ form, horarios })
                       "w-full pl-3 text-left font-normal",
                       !field.value && "text-muted-foreground"
                     )}
+                    disabled={isSubmitting}
                   >
                     {field.value ? (
                       format(field.value, "PPP", { locale: ptBR })
@@ -50,7 +52,7 @@ const DataHorarioFields: React.FC<DataHorarioFieldsProps> = ({ form, horarios })
                   selected={field.value}
                   onSelect={field.onChange}
                   initialFocus
-                  disabled={(date) => date < new Date()}
+                  disabled={(date) => date < new Date() || isSubmitting}
                   className="p-3 pointer-events-auto"
                 />
               </PopoverContent>
@@ -66,7 +68,7 @@ const DataHorarioFields: React.FC<DataHorarioFieldsProps> = ({ form, horarios })
         render={({ field }) => (
           <FormItem>
             <FormLabel>Horário</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione um horário" />

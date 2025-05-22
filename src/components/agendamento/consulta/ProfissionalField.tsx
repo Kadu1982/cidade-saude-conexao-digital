@@ -7,9 +7,10 @@ import { PROFISSIONAIS } from "../utils/mockData";
 
 interface ProfissionalFieldProps {
   form: UseFormReturn<any>;
+  isSubmitting?: boolean;
 }
 
-const ProfissionalField: React.FC<ProfissionalFieldProps> = ({ form }) => {
+const ProfissionalField: React.FC<ProfissionalFieldProps> = ({ form, isSubmitting = false }) => {
   return (
     <FormField
       control={form.control}
@@ -17,7 +18,7 @@ const ProfissionalField: React.FC<ProfissionalFieldProps> = ({ form }) => {
       render={({ field }) => (
         <FormItem>
           <FormLabel>Profissional</FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o profissional" />

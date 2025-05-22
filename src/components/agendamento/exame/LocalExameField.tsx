@@ -7,9 +7,10 @@ import { LOCAIS } from "../utils/mockData";
 
 interface LocalExameFieldProps {
   form: UseFormReturn<any>;
+  isSubmitting?: boolean;
 }
 
-const LocalExameField: React.FC<LocalExameFieldProps> = ({ form }) => {
+const LocalExameField: React.FC<LocalExameFieldProps> = ({ form, isSubmitting = false }) => {
   return (
     <FormField
       control={form.control}
@@ -17,7 +18,7 @@ const LocalExameField: React.FC<LocalExameFieldProps> = ({ form }) => {
       render={({ field }) => (
         <FormItem>
           <FormLabel>Local do Exame</FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o local" />

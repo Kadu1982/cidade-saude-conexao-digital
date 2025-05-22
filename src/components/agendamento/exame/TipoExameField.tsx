@@ -7,9 +7,10 @@ import { TIPOS_EXAME } from "../utils/mockData";
 
 interface TipoExameFieldProps {
   form: UseFormReturn<any>;
+  isSubmitting?: boolean;
 }
 
-const TipoExameField: React.FC<TipoExameFieldProps> = ({ form }) => {
+const TipoExameField: React.FC<TipoExameFieldProps> = ({ form, isSubmitting = false }) => {
   return (
     <FormField
       control={form.control}
@@ -17,7 +18,7 @@ const TipoExameField: React.FC<TipoExameFieldProps> = ({ form }) => {
       render={({ field }) => (
         <FormItem>
           <FormLabel>Tipo de Exame</FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o tipo de exame" />
