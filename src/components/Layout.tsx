@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import {
   Users,
   Calendar,
   Stethoscope,
-  Tooth,
+  Pill,
   Receipt,
   Settings,
   Menu,
@@ -24,7 +23,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { href: "/cadastro", label: "Cadastro", icon: <Users size={20} /> },
     { href: "/agendamento", label: "Agendamento", icon: <Calendar size={20} /> },
     { href: "/atendimento-medico", label: "Atend. Médico", icon: <Stethoscope size={20} /> },
-    { href: "/atendimento-odontologico", label: "Atend. Odontológico", icon: <Tooth size={20} /> },
+    { href: "/atendimento-odontologico", label: "Atend. Odontológico", icon: <Pill size={20} /> },
     { href: "/faturamento", label: "Faturamento", icon: <Receipt size={20} /> },
     { href: "/configuracoes", label: "Configurações", icon: <Settings size={20} /> }
   ];

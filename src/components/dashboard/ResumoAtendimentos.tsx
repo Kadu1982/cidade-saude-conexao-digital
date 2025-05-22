@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,7 +6,7 @@ import {
   Calendar, 
   ClipboardCheck, 
   SquareUser, 
-  Tooth,
+  Pill,
   Stethoscope
 } from "lucide-react";
 
@@ -47,7 +46,7 @@ export const ResumoAtendimentos = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatCard 
-            icon={<Tooth className="h-6 w-6 text-amber-500" />}
+            icon={<Pill className="h-6 w-6 text-amber-500" />}
             title="Atendimentos Odontológicos"
             value="9"
             change="Mesmo número de ontem"
@@ -97,7 +96,7 @@ export const ResumoAtendimentos = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatCard 
-            icon={<Tooth className="h-6 w-6 text-amber-500" />}
+            icon={<Pill className="h-6 w-6 text-amber-500" />}
             title="Atendimentos Odontológicos"
             value="58"
             change="+12% em relação à semana anterior"
@@ -147,7 +146,7 @@ export const ResumoAtendimentos = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatCard 
-            icon={<Tooth className="h-6 w-6 text-amber-500" />}
+            icon={<Pill className="h-6 w-6 text-amber-500" />}
             title="Atendimentos Odontológicos"
             value="245"
             change="+9% em relação ao mês anterior"
