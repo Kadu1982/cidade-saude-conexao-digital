@@ -89,21 +89,23 @@ export const AgendarExame = () => {
           <AgendamentoFormHeader 
             form={form}
             handlePatientSelect={handlePatientSelect}
+            isSubmitting={isSubmitting}
           />
           
-          <CartaoSusField form={form} />
-          <TipoExameField form={form} />
-          <LocalExameField form={form} />
-          <MedicoField form={form} />
-          <DataHorarioFields form={form} horarios={HORARIOS} />
-          <PrioridadeField form={form} />
-          <ObservacoesField form={form} />
+          <CartaoSusField form={form} isSubmitting={isSubmitting} />
+          <TipoExameField form={form} isSubmitting={isSubmitting} />
+          <LocalExameField form={form} isSubmitting={isSubmitting} />
+          <MedicoField form={form} isSubmitting={isSubmitting} />
+          <DataHorarioFields form={form} horarios={HORARIOS} isSubmitting={isSubmitting} />
+          <PrioridadeField form={form} isSubmitting={isSubmitting} />
+          <ObservacoesField form={form} isSubmitting={isSubmitting} />
         </div>
 
         <FormActions 
           onReset={() => form.reset()} 
           isSubmitting={isSubmitting}
           hasErrors={hasErrors && form.formState.isSubmitted}
+          submitText="Confirmar Exame"
         />
       </form>
     </Form>

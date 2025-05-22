@@ -87,14 +87,15 @@ export const AgendarConsulta = () => {
           <AgendamentoFormHeader 
             form={form}
             handlePatientSelect={handlePatientSelect}
+            isSubmitting={isSubmitting}
           />
           
-          <CartaoSusField form={form} />
-          <EspecialidadeField form={form} />
-          <ProfissionalField form={form} />
-          <UnidadeField form={form} />
-          <DataHorarioFields form={form} horarios={HORARIOS} />
-          <PrioridadeField form={form} />
+          <CartaoSusField form={form} isSubmitting={isSubmitting} />
+          <EspecialidadeField form={form} isSubmitting={isSubmitting} />
+          <ProfissionalField form={form} isSubmitting={isSubmitting} />
+          <UnidadeField form={form} isSubmitting={isSubmitting} />
+          <DataHorarioFields form={form} horarios={HORARIOS} isSubmitting={isSubmitting} />
+          <PrioridadeField form={form} isSubmitting={isSubmitting} />
         </div>
 
         <FormActions 

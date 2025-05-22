@@ -6,9 +6,10 @@ import { UseFormReturn } from "react-hook-form";
 
 interface CartaoSusFieldProps {
   form: UseFormReturn<any>;
+  isSubmitting?: boolean;
 }
 
-const CartaoSusField: React.FC<CartaoSusFieldProps> = ({ form }) => {
+const CartaoSusField: React.FC<CartaoSusFieldProps> = ({ form, isSubmitting = false }) => {
   return (
     <FormField
       control={form.control}
@@ -21,6 +22,7 @@ const CartaoSusField: React.FC<CartaoSusFieldProps> = ({ form }) => {
               placeholder="000 0000 0000 0000" 
               className={form.formState.errors.cartaoSus && "border-destructive focus-visible:ring-destructive"} 
               {...field} 
+              disabled={isSubmitting}
             />
           </FormControl>
           <FormMessage className="text-destructive" />
