@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,25 +11,51 @@ import {
   Receipt,
   Settings,
   Menu,
-  X
+  X,
+  MessageSquare,
+  Leaf,
+  Shield,
+  TrendingUp,
+  Syringe,
+  Truck,
+  LogOut,
+  User
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const location = useLocation();
+  const { user, logout, hasPermission } = useAuth();
 
   const menuItems = [
-    { href: "/", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
-    { href: "/cadastro", label: "Cadastro", icon: <Users size={20} /> },
-    { href: "/agendamento", label: "Agendamento", icon: <Calendar size={20} /> },
-    { href: "/atendimento-medico", label: "Atend. Médico", icon: <Stethoscope size={20} /> },
-    { href: "/atendimento-odontologico", label: "Atend. Odontológico", icon: <Pill size={20} /> },
-    { href: "/faturamento", label: "Faturamento", icon: <Receipt size={20} /> },
-    { href: "/configuracoes", label: "Configurações", icon: <Settings size={20} /> }
+    { href: "/", label: "Dashboard", icon: <LayoutDashboard size={20} />, permission: "dashboard" },
+    { href: "/cadastro", label: "Cadastro", icon: <Users size={20} />, permission: "cadastro" },
+    { href: "/agendamento", label: "Agendamento", icon: <Calendar size={20} />, permission: "agendamento" },
+    { href: "/atendimento-medico", label: "Atend. Médico", icon: <Stethoscope size={20} />, permission: "atendimento-medico" },
+    { href: "/atendimento-odontologico", label: "Atend. Odontológico", icon: <Pill size={20} />, permission: "atendimento-odontologico" },
+    { href: "/farmacia", label: "Farmácia", icon: <Pill size={20} />, permission: "farmacia" },
+    { href: "/ouvidoria", label: "Ouvidoria", icon: <MessageSquare size={20} />, permission: "ouvidoria" },
+    { href: "/vigilancia-ambiental", label: "Vig. Ambiental", icon: <Leaf size={20} />, permission: "vigilancia" },
+    { href: "/vigilancia-sanitaria", label: "Vig. Sanitária", icon: <Shield size={20} />, permission: "vigilancia" },
+    { href: "/epidemiologia", label: "Epidemiologia", icon: <TrendingUp size={20} />, permission: "epidemiologia" },
+    { href: "/vacinas", label: "Vacinas", icon: <Syringe size={20} />, permission: "vacinas" },
+    { href: "/transporte", label: "Transporte", icon: <Truck size={20} />, permission: "transporte" },
+    { href: "/faturamento", label: "Faturamento", icon: <Receipt size={20} />, permission: "faturamento" },
+    { href: "/configuracoes", label: "Configurações", icon: <Settings size={20} />, permission: "configuracoes" }
   ];
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  const handleLogout = () => {
+    logout();
+  };
+
+  // Filter menu items based on user permissions
+  const filteredMenuItems = menuItems.filter(item => 
+    hasPermission(item.permission) || hasPermission('*')
+  );
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -49,9 +76,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <div className="flex h-20 items-center justify-center border-b">
           <h1 className="text-xl font-bold text-primary">SaúdeGov</h1>
         </div>
-        <nav className="mt-5 px-2">
+        <nav className="mt-5 px-2 flex-1 overflow-y-auto">
           <ul className="space-y-2">
-            {menuItems.map((item) => (
+            {filteredMenuItems.map((item) => (
               <li key={item.href}>
                 <Link 
                   to={item.href} 
@@ -73,12 +100,20 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       {/* Content */}
       <div className="flex flex-1 flex-col overflow-hidden">
         <header className="bg-white shadow-sm z-20">
-          <div className="px-4 py-4 flex items-center justify-end md:justify-end">
+          <div className="px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Dr. João Silva</span>
+              <User className="h-4 w-4" />
+              <span className="text-sm font-medium">{user?.name}</span>
+              <span className="text-xs text-gray-500">({user?.role})</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">{user?.name}</span>
               <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                JS
+                {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
               </div>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </header>

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -5,9 +6,10 @@ import {
   Activity, 
   Calendar, 
   ClipboardCheck, 
-  SquareUser, 
+  UserPlus, 
   Pill,
-  Stethoscope
+  Stethoscope,
+  Users
 } from "lucide-react";
 
 export const ResumoAtendimentos = () => {
@@ -53,18 +55,18 @@ export const ResumoAtendimentos = () => {
             changeNeutral={true}
           />
           <StatCard 
-            icon={<SquareUser className="h-6 w-6 text-red-500" />}
-            title="Novos Pacientes"
+            icon={<UserPlus className="h-6 w-6 text-red-500" />}
+            title="Novos Cadastros"
             value="5"
             change="+25% em relação a ontem"
             changePositive={true}
           />
           <StatCard 
-            icon={<Activity className="h-6 w-6 text-indigo-500" />}
-            title="Urgências Atendidas"
-            value="3"
-            change="-25% em relação a ontem"
-            changePositive={true} // Menos urgências é positivo
+            icon={<Users className="h-6 w-6 text-indigo-500" />}
+            title="Demanda Espontânea"
+            value="12"
+            change="+8% em relação a ontem"
+            changePositive={true}
           />
         </div>
       </TabsContent>
@@ -103,17 +105,17 @@ export const ResumoAtendimentos = () => {
             changePositive={true}
           />
           <StatCard 
-            icon={<SquareUser className="h-6 w-6 text-red-500" />}
-            title="Novos Pacientes"
+            icon={<UserPlus className="h-6 w-6 text-red-500" />}
+            title="Novos Cadastros"
             value="32"
             change="+15% em relação à semana anterior"
             changePositive={true}
           />
           <StatCard 
-            icon={<Activity className="h-6 w-6 text-indigo-500" />}
-            title="Urgências Atendidas"
-            value="17"
-            change="-5% em relação à semana anterior"
+            icon={<Users className="h-6 w-6 text-indigo-500" />}
+            title="Demanda Espontânea"
+            value="78"
+            change="+10% em relação à semana anterior"
             changePositive={true}
           />
         </div>
@@ -153,17 +155,17 @@ export const ResumoAtendimentos = () => {
             changePositive={true}
           />
           <StatCard 
-            icon={<SquareUser className="h-6 w-6 text-red-500" />}
-            title="Novos Pacientes"
+            icon={<UserPlus className="h-6 w-6 text-red-500" />}
+            title="Novos Cadastros"
             value="128"
             change="+18% em relação ao mês anterior"
             changePositive={true}
           />
           <StatCard 
-            icon={<Activity className="h-6 w-6 text-indigo-500" />}
-            title="Urgências Atendidas"
-            value="72"
-            change="-8% em relação ao mês anterior"
+            icon={<Users className="h-6 w-6 text-indigo-500" />}
+            title="Demanda Espontânea"
+            value="342"
+            change="+15% em relação ao mês anterior"
             changePositive={true}
           />
         </div>
