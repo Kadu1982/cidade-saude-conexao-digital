@@ -50,10 +50,10 @@ const Login = () => {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl flex items-center justify-center gap-2">
             <LogIn className="h-6 w-6" />
-            SaúdeGov
+            SaúdeGov - PNAB
           </CardTitle>
           <CardDescription>
-            Faça login para acessar o sistema
+            Sistema de Gestão da Atenção Primária à Saúde
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -86,10 +86,16 @@ const Login = () => {
           </form>
           
           <div className="mt-6 text-sm text-gray-600">
-            <p className="font-semibold mb-2">Usuários de demonstração:</p>
+            <p className="font-semibold mb-2">Usuários de demonstração (PNAB):</p>
             <div className="space-y-1">
               <p><strong>Admin:</strong> admin@saude.gov / 123456</p>
-              <p><strong>Médico:</strong> medico@saude.gov / 123456</p>
+              <p><strong>Médico 1:</strong> medico1@saude.gov / 123456</p>
+              <p><strong>Médico 2:</strong> medico2@saude.gov / 123456</p>
+              <p><strong>Enfermeiro:</strong> enfermeiro@saude.gov / 123456</p>
+              <p><strong>Farmacêutico:</strong> farmaceutico@saude.gov / 123456</p>
+            </div>
+            <div className="mt-3 p-2 bg-blue-50 rounded text-xs">
+              <p><strong>Base Legal:</strong> Sistema desenvolvido conforme PNAB 2017 e Programa Previne Brasil</p>
             </div>
           </div>
         </CardContent>
