@@ -1,4 +1,3 @@
-
 import { pacientes } from '@/data/mockData';
 
 export interface PatientData {
@@ -11,6 +10,12 @@ export interface ValidationResult {
   isDuplicate: boolean;
   possibleDuplicates: any[];
   aiAnalysis: string;
+}
+
+export interface ValidationConfig {
+  enableValidation: boolean;
+  validateNewborns: boolean;
+  validateWithoutCPF: boolean;
 }
 
 // Simulação de uma API de IA para validação de duplicatas
@@ -107,8 +112,22 @@ const levenshteinDistance = (str1: string, str2: string): number => {
   return matrix[str2.length][str1.length];
 };
 
-export const validatePatientDuplicate = async (newPatient: PatientData): Promise<ValidationResult> => {
+export const validatePatientDuplicate = async (
+  newPatient: PatientData, 
+  config: ValidationConfig = { enableValidation: true, validateNewborns: true, validateWithoutCPF: true }
+): Promise<ValidationResult> => {
   console.log('Iniciando validação de duplicatas para:', newPatient);
+  console.log('Configuração de validação:', config);
+  
+  // Se a validação está desabilitada, retorna único automaticamente
+  if (!config.enableValidation) {
+    console.log('Validação desabilitada - retornando ÚNICO');
+    return {
+      isDuplicate: false,
+      possibleDuplicates: [],
+      aiAnalysis: "ÚNICO"
+    };
+  }
   
   // Busca possíveis duplicatas na base de dados
   const possibleDuplicates = pacientes.filter(patient => {

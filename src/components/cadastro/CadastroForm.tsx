@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -23,7 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DuplicateValidation } from "./DuplicateValidation";
-import { ValidationResult } from "@/services/duplicateValidationService";
+import { ValidationSettings } from "./ValidationSettings";
+import { ValidationResult, ValidationConfig } from "@/services/duplicateValidationService";
 
 const formSchema = z.object({
   nome: z.string().min(3, "Nome deve ter pelo menos 3 caracteres"),
@@ -34,7 +34,6 @@ const formSchema = z.object({
   endereco: z.string().min(5, "Endereço deve ter pelo menos 5 caracteres"),
   telefone: z.string().min(10, "Telefone inválido"),
   email: z.string().email("Email inválido").optional().or(z.literal("")),
-  // Novos campos para validação de duplicatas
   nomeMae: z.string().min(3, "Nome da mãe deve ter pelo menos 3 caracteres"),
   cpfMae: z.string().min(11, "CPF da mãe inválido").max(14, "CPF da mãe inválido"),
 });
@@ -43,6 +42,11 @@ export const CadastroForm = () => {
   const { toast } = useToast();
   const [showValidation, setShowValidation] = useState(false);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
+  const [validationConfig, setValidationConfig] = useState<ValidationConfig>({
+    enableValidation: true,
+    validateNewborns: true,
+    validateWithoutCPF: true,
+  });
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,22 +64,29 @@ export const CadastroForm = () => {
     },
   });
 
-  const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log('Dados do formulário:', values);
-    
-    // Verificar se é um recém-nascido (menos de 1 ano) ou não tem CPF
+  const shouldValidate = (values: z.infer<typeof formSchema>) => {
+    if (!validationConfig.enableValidation) {
+      return false;
+    }
+
     const birthDate = new Date(values.dataNascimento);
     const now = new Date();
     const ageInMonths = (now.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 30);
     const isNewborn = ageInMonths < 12;
+    const hasNoCPF = !values.cpf;
+
+    return (isNewborn && validationConfig.validateNewborns) || 
+           (hasNoCPF && validationConfig.validateWithoutCPF);
+  };
+
+  const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
+    console.log('Dados do formulário:', values);
     
-    if (isNewborn || !values.cpf) {
-      // Para recém-nascidos ou pacientes sem CPF, fazer validação de duplicatas
+    if (shouldValidate(values)) {
       setShowValidation(true);
       return;
     }
     
-    // Para outros casos, prosseguir normalmente
     finalizeCadastro(values);
   };
 
@@ -91,7 +102,6 @@ export const CadastroForm = () => {
       return;
     }
     
-    // Se não é duplicata, finalizar cadastro
     const formValues = form.getValues();
     finalizeCadastro(formValues);
   };
@@ -121,6 +131,7 @@ export const CadastroForm = () => {
           nomeMae: formValues.nomeMae,
           cpfMae: formValues.cpfMae,
         }}
+        validationConfig={validationConfig}
         onValidationComplete={handleValidationComplete}
         onCancel={handleCancelValidation}
       />
@@ -128,168 +139,177 @@ export const CadastroForm = () => {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="nome"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome Completo</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nome completo do munícipe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="dataNascimento"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Data de Nascimento</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="cpf"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>CPF</FormLabel>
-                <FormControl>
-                  <Input placeholder="000.000.000-00" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Opcional para recém-nascidos
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="cartaoSus"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cartão SUS</FormLabel>
-                <FormControl>
-                  <Input placeholder="000 0000 0000 0000" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="sexo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Sexo</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+    <div className="space-y-6">
+      <ValidationSettings 
+        config={validationConfig}
+        onConfigChange={setValidationConfig}
+      />
+      
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="nome"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome Completo</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o sexo" />
-                    </SelectTrigger>
+                    <Input placeholder="Nome completo do munícipe" {...field} />
                   </FormControl>
-                  <SelectContent>
-                    <SelectItem value="masculino">Masculino</SelectItem>
-                    <SelectItem value="feminino">Feminino</SelectItem>
-                    <SelectItem value="outro">Outro</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="endereco"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Endereço</FormLabel>
-                <FormControl>
-                  <Input placeholder="Endereço completo" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="telefone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Telefone</FormLabel>
-                <FormControl>
-                  <Input placeholder="(00) 00000-0000" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="email@exemplo.com" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Opcional
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="dataNascimento"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Data de Nascimento</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="cpf"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>CPF</FormLabel>
+                  <FormControl>
+                    <Input placeholder="000.000.000-00" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Opcional para recém-nascidos
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="cartaoSus"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cartão SUS</FormLabel>
+                  <FormControl>
+                    <Input placeholder="000 0000 0000 0000" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="sexo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sexo</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o sexo" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="masculino">Masculino</SelectItem>
+                      <SelectItem value="feminino">Feminino</SelectItem>
+                      <SelectItem value="outro">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="endereco"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Endereço</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Endereço completo" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="telefone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telefone</FormLabel>
+                  <FormControl>
+                    <Input placeholder="(00) 00000-0000" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="email@exemplo.com" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Opcional
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            {/* Novos campos para validação de duplicatas */}
+            <FormField
+              control={form.control}
+              name="nomeMae"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome da Mãe</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nome completo da mãe" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Obrigatório para validação de duplicatas
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="cpfMae"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>CPF da Mãe</FormLabel>
+                  <FormControl>
+                    <Input placeholder="000.000.000-00" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Obrigatório para validação de duplicatas
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           
-          {/* Novos campos para validação de duplicatas */}
-          <FormField
-            control={form.control}
-            name="nomeMae"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome da Mãe</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nome completo da mãe" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Obrigatório para validação de duplicatas
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="cpfMae"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>CPF da Mãe</FormLabel>
-                <FormControl>
-                  <Input placeholder="000.000.000-00" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Obrigatório para validação de duplicatas
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        
-        <div className="flex justify-end">
-          <Button type="submit">Validar e Salvar Cadastro</Button>
-        </div>
-      </form>
-    </Form>
+          <div className="flex justify-end">
+            <Button type="submit">
+              {validationConfig.enableValidation ? "Validar e Salvar Cadastro" : "Salvar Cadastro"}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 };

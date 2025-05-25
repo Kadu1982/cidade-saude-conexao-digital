@@ -4,16 +4,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, AlertTriangle, CheckCircle, User } from 'lucide-react';
-import { validatePatientDuplicate, PatientData, ValidationResult } from '@/services/duplicateValidationService';
+import { validatePatientDuplicate, PatientData, ValidationResult, ValidationConfig } from '@/services/duplicateValidationService';
 
 interface DuplicateValidationProps {
   patientData: PatientData;
+  validationConfig?: ValidationConfig;
   onValidationComplete: (result: ValidationResult) => void;
   onCancel: () => void;
 }
 
 export const DuplicateValidation: React.FC<DuplicateValidationProps> = ({
   patientData,
+  validationConfig,
   onValidationComplete,
   onCancel
 }) => {
@@ -23,7 +25,7 @@ export const DuplicateValidation: React.FC<DuplicateValidationProps> = ({
   const handleValidate = async () => {
     setIsValidating(true);
     try {
-      const result = await validatePatientDuplicate(patientData);
+      const result = await validatePatientDuplicate(patientData, validationConfig);
       setValidationResult(result);
       onValidationComplete(result);
     } catch (error) {
