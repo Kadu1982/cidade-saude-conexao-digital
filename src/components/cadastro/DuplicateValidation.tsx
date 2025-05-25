@@ -1,0 +1,188 @@
+
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, AlertTriangle, CheckCircle, User } from 'lucide-react';
+import { validatePatientDuplicate, PatientData, ValidationResult } from '@/services/duplicateValidationService';
+
+interface DuplicateValidationProps {
+  patientData: PatientData;
+  onValidationComplete: (result: ValidationResult) => void;
+  onCancel: () => void;
+}
+
+export const DuplicateValidation: React.FC<DuplicateValidationProps> = ({
+  patientData,
+  onValidationComplete,
+  onCancel
+}) => {
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
+
+  const handleValidate = async () => {
+    setIsValidating(true);
+    try {
+      const result = await validatePatientDuplicate(patientData);
+      setValidationResult(result);
+      onValidationComplete(result);
+    } catch (error) {
+      console.error('Erro na validação:', error);
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
+  const formatCPF = (cpf: string) => {
+    return cpf?.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') || 'Não informado';
+  };
+
+  if (isValidating) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            Validando Cadastro
+          </CardTitle>
+          <CardDescription>
+            Analisando se o paciente já está cadastrado no sistema...
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h3 className="font-medium mb-2">Dados sendo validados:</h3>
+              <div className="space-y-1 text-sm">
+                <p><strong>Nome:</strong> {patientData.nome}</p>
+                <p><strong>Nome da Mãe:</strong> {patientData.nomeMae}</p>
+                <p><strong>CPF da Mãe:</strong> {formatCPF(patientData.cpfMae)}</p>
+              </div>
+            </div>
+            <div className="text-center py-8">
+              <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-500" />
+              <p className="text-gray-600">Consultando base de dados e analisando com IA...</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (validationResult) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            {validationResult.isDuplicate ? (
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+            ) : (
+              <CheckCircle className="h-5 w-5 text-green-500" />
+            )}
+            Resultado da Validação
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="text-center">
+              <Badge 
+                variant={validationResult.isDuplicate ? "destructive" : "default"}
+                className="text-lg px-4 py-2"
+              >
+                {validationResult.aiAnalysis}
+              </Badge>
+            </div>
+
+            {validationResult.isDuplicate && (
+              <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
+                <h3 className="font-medium text-red-800 mb-2">
+                  ⚠️ Possível Duplicata Detectada
+                </h3>
+                <p className="text-red-700 text-sm mb-3">
+                  O sistema identificou que este paciente pode já estar cadastrado. 
+                  Verifique os registros abaixo antes de prosseguir.
+                </p>
+                
+                {validationResult.possibleDuplicates.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-red-800">Cadastros Similares Encontrados:</h4>
+                    {validationResult.possibleDuplicates.map((duplicate, index) => (
+                      <div key={index} className="bg-white p-3 rounded border">
+                        <div className="flex items-center gap-2 mb-2">
+                          <User className="h-4 w-4" />
+                          <span className="font-medium">{duplicate.nome}</span>
+                        </div>
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <p><strong>CPF:</strong> {duplicate.cpf}</p>
+                          <p><strong>CNS:</strong> {duplicate.cns}</p>
+                          <p><strong>Data Nascimento:</strong> {duplicate.dataNascimento}</p>
+                          <p><strong>Unidade:</strong> {duplicate.unidadeSaude}</p>
+                          {duplicate.nomeMae && <p><strong>Nome da Mãe:</strong> {duplicate.nomeMae}</p>}
+                          {duplicate.cpfMae && <p><strong>CPF da Mãe:</strong> {formatCPF(duplicate.cpfMae)}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!validationResult.isDuplicate && (
+              <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
+                <h3 className="font-medium text-green-800 mb-2">
+                  ✅ Cadastro Liberado
+                </h3>
+                <p className="text-green-700 text-sm">
+                  Nenhuma duplicata foi encontrada. O cadastro pode prosseguir normalmente.
+                </p>
+              </div>
+            )}
+
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={onCancel}>
+                Cancelar
+              </Button>
+              {!validationResult.isDuplicate && (
+                <Button onClick={() => onValidationComplete(validationResult)}>
+                  Prosseguir com Cadastro
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Validação de Duplicatas</CardTitle>
+        <CardDescription>
+          Antes de finalizar o cadastro, vamos verificar se este paciente já está registrado no sistema.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h3 className="font-medium mb-2">Dados a serem validados:</h3>
+            <div className="space-y-1 text-sm">
+              <p><strong>Nome:</strong> {patientData.nome}</p>
+              <p><strong>Nome da Mãe:</strong> {patientData.nomeMae}</p>
+              <p><strong>CPF da Mãe:</strong> {formatCPF(patientData.cpfMae)}</p>
+            </div>
+          </div>
+          
+          <div className="flex gap-2 justify-end">
+            <Button variant="outline" onClick={onCancel}>
+              Cancelar
+            </Button>
+            <Button onClick={handleValidate}>
+              Validar Cadastro
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};

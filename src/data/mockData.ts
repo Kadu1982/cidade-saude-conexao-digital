@@ -1,4 +1,3 @@
-
 // Dados de teste baseados nas diretrizes PNAB
 export interface Paciente {
   id: string;
@@ -14,19 +13,9 @@ export interface Paciente {
   acs?: string; // Agente Comunitário de Saúde
   condicoesCronicas?: string[];
   ultimaConsulta?: string;
-}
-
-export interface Medico {
-  id: string;
-  nome: string;
-  especialidade: string;
-  crm: string;
-  cns: string;
-  unidadeSaude: string;
-  cargaHoraria: number;
-  equipeESF?: string;
-  diasAtendimento: string[];
-  horariosAtendimento: string;
+  // Novos campos para validação de duplicatas
+  nomeMae?: string;
+  cpfMae?: string;
 }
 
 // Unidades de Saúde baseadas na PNAB
@@ -388,7 +377,9 @@ export const pacientes: Paciente[] = [
     equipeESF: 'Equipe Alpha',
     acs: 'ACS Maria',
     condicoesCronicas: ['Hipertensão', 'Diabetes'],
-    ultimaConsulta: '2024-05-15'
+    ultimaConsulta: '2024-05-15',
+    nomeMae: 'Maria da Silva',
+    cpfMae: '111.222.333-44'
   },
   {
     id: 'pac002',
@@ -403,7 +394,9 @@ export const pacientes: Paciente[] = [
     equipeESF: 'Equipe Beta',
     acs: 'ACS João',
     condicoesCronicas: ['Asma'],
-    ultimaConsulta: '2024-05-10'
+    ultimaConsulta: '2024-05-10',
+    nomeMae: 'Ana Santos',
+    cpfMae: '222.333.444-55'
   },
   {
     id: 'pac003',
@@ -417,7 +410,9 @@ export const pacientes: Paciente[] = [
     microarea: '001',
     equipeESF: 'Equipe Alpha',
     acs: 'ACS Maria',
-    ultimaConsulta: '2024-05-08'
+    ultimaConsulta: '2024-05-08',
+    nomeMae: 'Carmen Oliveira',
+    cpfMae: '333.444.555-66'
   },
   {
     id: 'pac004',
@@ -432,7 +427,9 @@ export const pacientes: Paciente[] = [
     equipeESF: 'Equipe Gamma',
     acs: 'ACS Carlos',
     condicoesCronicas: ['Artrite', 'Osteoporose'],
-    ultimaConsulta: '2024-05-12'
+    ultimaConsulta: '2024-05-12',
+    nomeMae: 'Helena Costa',
+    cpfMae: '444.555.666-77'
   },
   {
     id: 'pac005',
@@ -446,7 +443,9 @@ export const pacientes: Paciente[] = [
     microarea: '002',
     equipeESF: 'Equipe Beta',
     acs: 'ACS João',
-    ultimaConsulta: '2024-05-20'
+    ultimaConsulta: '2024-05-20',
+    nomeMae: 'Fernanda Ferreira',
+    cpfMae: '555.666.777-88'
   },
 
   // UBS Jardim das Flores - 5 pacientes
@@ -463,7 +462,9 @@ export const pacientes: Paciente[] = [
     equipeESF: 'Equipe Delta',
     acs: 'ACS Ana',
     condicoesCronicas: ['Hipertensão'],
-    ultimaConsulta: '2024-05-14'
+    ultimaConsulta: '2024-05-14',
+    nomeMae: 'Rita Mendes',
+    cpfMae: '666.777.888-99'
   },
   {
     id: 'pac007',
@@ -477,7 +478,9 @@ export const pacientes: Paciente[] = [
     microarea: '005',
     equipeESF: 'Equipe Epsilon',
     acs: 'ACS Pedro',
-    ultimaConsulta: '2024-05-11'
+    ultimaConsulta: '2024-05-11',
+    nomeMae: 'Cleusa Dias',
+    cpfMae: '777.888.999-00'
   },
   {
     id: 'pac008',
@@ -491,7 +494,9 @@ export const pacientes: Paciente[] = [
     microarea: '006',
     equipeESF: 'Equipe Zeta',
     acs: 'ACS Lucia',
-    ultimaConsulta: '2024-05-18'
+    ultimaConsulta: '2024-05-18',
+    nomeMae: 'Sonia Silva',
+    cpfMae: '888.999.000-11'
   },
   {
     id: 'pac009',
@@ -506,7 +511,9 @@ export const pacientes: Paciente[] = [
     equipeESF: 'Equipe Delta',
     acs: 'ACS Ana',
     condicoesCronicas: ['Diabetes', 'Colesterol Alto'],
-    ultimaConsulta: '2024-05-16'
+    ultimaConsulta: '2024-05-16',
+    nomeMae: 'Valéria Almeida',
+    cpfMae: '999.000.111-22'
   },
   {
     id: 'pac010',
@@ -520,7 +527,9 @@ export const pacientes: Paciente[] = [
     microarea: '005',
     equipeESF: 'Equipe Epsilon',
     acs: 'ACS Pedro',
-    ultimaConsulta: '2024-05-19'
+    ultimaConsulta: '2024-05-19',
+    nomeMae: 'Beatriz Rocha',
+    cpfMae: '000.111.222-33'
   },
 
   // UBS Vila Nova - 5 pacientes
@@ -537,7 +546,9 @@ export const pacientes: Paciente[] = [
     equipeESF: 'Equipe Eta',
     acs: 'ACS Roberto',
     condicoesCronicas: ['Hipertensão', 'Artrite'],
-    ultimaConsulta: '2024-05-13'
+    ultimaConsulta: '2024-05-13',
+    nomeMae: 'Dulce Barbosa',
+    cpfMae: '111.222.333-45'
   },
   {
     id: 'pac012',
@@ -551,7 +562,9 @@ export const pacientes: Paciente[] = [
     microarea: '008',
     equipeESF: 'Equipe Theta',
     acs: 'ACS Fernanda',
-    ultimaConsulta: '2024-05-17'
+    ultimaConsulta: '2024-05-17',
+    nomeMae: 'Lúcia Souza',
+    cpfMae: '222.333.444-56'
   },
   {
     id: 'pac013',
@@ -565,7 +578,9 @@ export const pacientes: Paciente[] = [
     microarea: '007',
     equipeESF: 'Equipe Eta',
     acs: 'ACS Roberto',
-    ultimaConsulta: '2024-05-09'
+    ultimaConsulta: '2024-05-09',
+    nomeMae: 'Aparecida Lima',
+    cpfMae: '333.444.555-67'
   },
   {
     id: 'pac014',
@@ -580,7 +595,9 @@ export const pacientes: Paciente[] = [
     equipeESF: 'Equipe Iota',
     acs: 'ACS Marcos',
     condicoesCronicas: ['Asma', 'Rinite'],
-    ultimaConsulta: '2024-05-21'
+    ultimaConsulta: '2024-05-21',
+    nomeMae: 'Celia Moreira',
+    cpfMae: '444.555.666-78'
   },
   {
     id: 'pac015',
@@ -594,7 +611,9 @@ export const pacientes: Paciente[] = [
     microarea: '008',
     equipeESF: 'Equipe Theta',
     acs: 'ACS Fernanda',
-    ultimaConsulta: '2024-05-22'
+    ultimaConsulta: '2024-05-22',
+    nomeMae: 'Gabriela Nascimento',
+    cpfMae: '555.666.777-89'
   },
 
   // PSF Rural - 5 pacientes
@@ -611,7 +630,9 @@ export const pacientes: Paciente[] = [
     equipeESF: 'Equipe Rural',
     acs: 'ACS Silvia',
     condicoesCronicas: ['Hipertensão', 'Diabetes', 'DPOC'],
-    ultimaConsulta: '2024-05-06'
+    ultimaConsulta: '2024-05-06',
+    nomeMae: 'Joana Pereira',
+    cpfMae: '666.777.888-90'
   },
   {
     id: 'pac017',
@@ -626,7 +647,9 @@ export const pacientes: Paciente[] = [
     equipeESF: 'Equipe Rural',
     acs: 'ACS Antonio',
     condicoesCronicas: ['Artrose', 'Hipertensão'],
-    ultimaConsulta: '2024-05-07'
+    ultimaConsulta: '2024-05-07',
+    nomeMae: 'Benedita Campos',
+    cpfMae: '777.888.999-01'
   },
   {
     id: 'pac018',
@@ -641,7 +664,9 @@ export const pacientes: Paciente[] = [
     equipeESF: 'Equipe Rural',
     acs: 'ACS Silvia',
     condicoesCronicas: ['Diabetes', 'Cardiopatia'],
-    ultimaConsulta: '2024-05-05'
+    ultimaConsulta: '2024-05-05',
+    nomeMae: 'Conceição Ribeiro',
+    cpfMae: '888.999.000-12'
   },
   {
     id: 'pac019',
@@ -655,7 +680,9 @@ export const pacientes: Paciente[] = [
     microarea: '012',
     equipeESF: 'Equipe Rural',
     acs: 'ACS Claudia',
-    ultimaConsulta: '2024-05-04'
+    ultimaConsulta: '2024-05-04',
+    nomeMae: 'Francisca Martins',
+    cpfMae: '999.000.111-23'
   },
   {
     id: 'pac020',
@@ -670,7 +697,9 @@ export const pacientes: Paciente[] = [
     equipeESF: 'Equipe Rural',
     acs: 'ACS Antonio',
     condicoesCronicas: ['Alzheimer', 'Hipertensão', 'Diabetes'],
-    ultimaConsulta: '2024-05-03'
+    ultimaConsulta: '2024-05-03',
+    nomeMae: 'Antonia Gomes',
+    cpfMae: '000.111.222-34'
   },
 
   // Hospital Municipal - 5 pacientes
@@ -685,7 +714,9 @@ export const pacientes: Paciente[] = [
     unidadeSaude: 'Hospital Municipal',
     microarea: '013',
     equipeESF: 'Sem Equipe',
-    ultimaConsulta: '2024-05-23'
+    ultimaConsulta: '2024-05-23',
+    nomeMae: 'Isabel Torres',
+    cpfMae: '111.222.333-46'
   },
   {
     id: 'pac022',
@@ -699,7 +730,9 @@ export const pacientes: Paciente[] = [
     microarea: '014',
     equipeESF: 'Sem Equipe',
     condicoesCronicas: ['Câncer de Mama'],
-    ultimaConsulta: '2024-05-24'
+    ultimaConsulta: '2024-05-24',
+    nomeMae: 'Terezinha Borges',
+    cpfMae: '222.333.444-57'
   },
   {
     id: 'pac023',
@@ -713,7 +746,9 @@ export const pacientes: Paciente[] = [
     microarea: '015',
     equipeESF: 'Sem Equipe',
     condicoesCronicas: ['IAM', 'Diabetes'],
-    ultimaConsulta: '2024-05-23'
+    ultimaConsulta: '2024-05-23',
+    nomeMae: 'Sebastiana Lima',
+    cpfMae: '333.444.555-68'
   },
   {
     id: 'pac024',
@@ -726,7 +761,9 @@ export const pacientes: Paciente[] = [
     unidadeSaude: 'Hospital Municipal',
     microarea: '016',
     equipeESF: 'Sem Equipe',
-    ultimaConsulta: '2024-05-22'
+    ultimaConsulta: '2024-05-22',
+    nomeMae: 'Rosana Freitas',
+    cpfMae: '444.555.666-79'
   },
   {
     id: 'pac025',
@@ -740,7 +777,9 @@ export const pacientes: Paciente[] = [
     microarea: '017',
     equipeESF: 'Sem Equipe',
     condicoesCronicas: ['AVC', 'Hipertensão'],
-    ultimaConsulta: '2024-05-21'
+    ultimaConsulta: '2024-05-21',
+    nomeMae: 'Marlene Viana',
+    cpfMae: '555.666.777-80'
   }
 ];
 

@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -22,20 +22,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DuplicateValidation } from "./DuplicateValidation";
+import { ValidationResult } from "@/services/duplicateValidationService";
 
 const formSchema = z.object({
   nome: z.string().min(3, "Nome deve ter pelo menos 3 caracteres"),
   dataNascimento: z.string().min(1, "Data de nascimento é obrigatória"),
-  cpf: z.string().min(11, "CPF inválido").max(14, "CPF inválido"),
+  cpf: z.string().min(11, "CPF inválido").max(14, "CPF inválido").optional().or(z.literal("")),
   cartaoSus: z.string().min(15, "Cartão SUS inválido"),
   sexo: z.enum(["masculino", "feminino", "outro"]),
   endereco: z.string().min(5, "Endereço deve ter pelo menos 5 caracteres"),
   telefone: z.string().min(10, "Telefone inválido"),
   email: z.string().email("Email inválido").optional().or(z.literal("")),
+  // Novos campos para validação de duplicatas
+  nomeMae: z.string().min(3, "Nome da mãe deve ter pelo menos 3 caracteres"),
+  cpfMae: z.string().min(11, "CPF da mãe inválido").max(14, "CPF da mãe inválido"),
 });
 
 export const CadastroForm = () => {
   const { toast } = useToast();
+  const [showValidation, setShowValidation] = useState(false);
+  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,21 +55,81 @@ export const CadastroForm = () => {
       endereco: "",
       telefone: "",
       email: "",
+      nomeMae: "",
+      cpfMae: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
+    console.log('Dados do formulário:', values);
+    
+    // Verificar se é um recém-nascido (menos de 1 ano) ou não tem CPF
+    const birthDate = new Date(values.dataNascimento);
+    const now = new Date();
+    const ageInMonths = (now.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 30);
+    const isNewborn = ageInMonths < 12;
+    
+    if (isNewborn || !values.cpf) {
+      // Para recém-nascidos ou pacientes sem CPF, fazer validação de duplicatas
+      setShowValidation(true);
+      return;
+    }
+    
+    // Para outros casos, prosseguir normalmente
+    finalizeCadastro(values);
+  };
+
+  const handleValidationComplete = (result: ValidationResult) => {
+    setValidationResult(result);
+    
+    if (result.isDuplicate) {
+      toast({
+        title: "Possível Duplicata Detectada",
+        description: "Verifique os cadastros similares antes de prosseguir.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Se não é duplicata, finalizar cadastro
+    const formValues = form.getValues();
+    finalizeCadastro(formValues);
+  };
+
+  const finalizeCadastro = (values: z.infer<typeof formSchema>) => {
+    console.log('Finalizando cadastro:', values);
     toast({
       title: "Cadastro realizado com sucesso",
       description: `O munícipe ${values.nome} foi cadastrado.`,
     });
     form.reset();
+    setShowValidation(false);
+    setValidationResult(null);
+  };
+
+  const handleCancelValidation = () => {
+    setShowValidation(false);
+    setValidationResult(null);
+  };
+
+  if (showValidation) {
+    const formValues = form.getValues();
+    return (
+      <DuplicateValidation
+        patientData={{
+          nome: formValues.nome,
+          nomeMae: formValues.nomeMae,
+          cpfMae: formValues.cpfMae,
+        }}
+        onValidationComplete={handleValidationComplete}
+        onCancel={handleCancelValidation}
+      />
+    );
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -98,6 +166,9 @@ export const CadastroForm = () => {
                 <FormControl>
                   <Input placeholder="000.000.000-00" {...field} />
                 </FormControl>
+                <FormDescription>
+                  Opcional para recém-nascidos
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -179,9 +250,44 @@ export const CadastroForm = () => {
               </FormItem>
             )}
           />
+          
+          {/* Novos campos para validação de duplicatas */}
+          <FormField
+            control={form.control}
+            name="nomeMae"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nome da Mãe</FormLabel>
+                <FormControl>
+                  <Input placeholder="Nome completo da mãe" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Obrigatório para validação de duplicatas
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="cpfMae"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>CPF da Mãe</FormLabel>
+                <FormControl>
+                  <Input placeholder="000.000.000-00" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Obrigatório para validação de duplicatas
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
+        
         <div className="flex justify-end">
-          <Button type="submit">Salvar Cadastro</Button>
+          <Button type="submit">Validar e Salvar Cadastro</Button>
         </div>
       </form>
     </Form>
