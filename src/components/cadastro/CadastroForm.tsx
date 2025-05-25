@@ -43,9 +43,9 @@ export const CadastroForm = () => {
   const [showValidation, setShowValidation] = useState(false);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [validationConfig, setValidationConfig] = useState<ValidationConfig>({
-    enableValidation: true,
+    enableValidation: true, // Sempre habilitado
     validateNewborns: true,
-    validateWithoutCPF: true,
+    validateWithoutCPF: true, // Sempre habilitado
   });
   
   const form = useForm<z.infer<typeof formSchema>>({
@@ -65,18 +65,19 @@ export const CadastroForm = () => {
   });
 
   const shouldValidate = (values: z.infer<typeof formSchema>) => {
-    if (!validationConfig.enableValidation) {
-      return false;
-    }
-
+    // Sempre valida, exceto para recém-nascidos quando o toggle está desabilitado
     const birthDate = new Date(values.dataNascimento);
     const now = new Date();
     const ageInMonths = (now.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 30);
     const isNewborn = ageInMonths < 12;
-    const hasNoCPF = !values.cpf;
 
-    return (isNewborn && validationConfig.validateNewborns) || 
-           (hasNoCPF && validationConfig.validateWithoutCPF);
+    // Se for recém-nascido e a validação de recém-nascidos estiver desabilitada, não valida
+    if (isNewborn && !validationConfig.validateNewborns) {
+      return false;
+    }
+    
+    // Para todos os outros casos, sempre valida
+    return true;
   };
 
   const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
@@ -140,27 +141,31 @@ export const CadastroForm = () => {
 
   return (
     <div className="space-y-6">
-      <ValidationSettings 
-        config={validationConfig}
-        onConfigChange={setValidationConfig}
-      />
-      
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="nome"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome Completo</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Nome completo do munícipe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="md:col-span-2">
+              <FormField
+                control={form.control}
+                name="nome"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome Completo</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nome completo do munícipe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="mt-3">
+                <ValidationSettings 
+                  config={validationConfig}
+                  onConfigChange={setValidationConfig}
+                />
+              </div>
+            </div>
+            
             <FormField
               control={form.control}
               name="dataNascimento"
@@ -305,7 +310,7 @@ export const CadastroForm = () => {
           
           <div className="flex justify-end">
             <Button type="submit">
-              {validationConfig.enableValidation ? "Validar e Salvar Cadastro" : "Salvar Cadastro"}
+              Validar e Salvar Cadastro
             </Button>
           </div>
         </form>

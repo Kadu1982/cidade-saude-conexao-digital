@@ -119,15 +119,8 @@ export const validatePatientDuplicate = async (
   console.log('Iniciando validação de duplicatas para:', newPatient);
   console.log('Configuração de validação:', config);
   
-  // Se a validação está desabilitada, retorna único automaticamente
-  if (!config.enableValidation) {
-    console.log('Validação desabilitada - retornando ÚNICO');
-    return {
-      isDuplicate: false,
-      possibleDuplicates: [],
-      aiAnalysis: "ÚNICO"
-    };
-  }
+  // Validação sempre ativa, exceto para recém-nascidos quando o toggle estiver desabilitado
+  // Não há mais verificação de enableValidation pois sempre deve validar
   
   // Busca possíveis duplicatas na base de dados
   const possibleDuplicates = pacientes.filter(patient => {
