@@ -1,3 +1,4 @@
+
 // Dados de teste baseados nas diretrizes PNAB
 export interface Paciente {
   id: string;
@@ -16,6 +17,20 @@ export interface Paciente {
   // Novos campos para validação de duplicatas
   nomeMae?: string;
   cpfMae?: string;
+}
+
+// Interface para médicos baseada na PNAB
+export interface Medico {
+  id: string;
+  nome: string;
+  especialidade: string;
+  crm: string;
+  cns: string;
+  unidadeSaude: string;
+  cargaHoraria: number;
+  equipeESF?: string;
+  diasAtendimento: string[];
+  horariosAtendimento: string;
 }
 
 // Unidades de Saúde baseadas na PNAB
