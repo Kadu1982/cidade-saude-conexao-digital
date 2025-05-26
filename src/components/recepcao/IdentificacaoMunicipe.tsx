@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Fingerprint, User, Search, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { BiometricLogin } from "../auth/BiometricLogin";
