@@ -2,9 +2,6 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Fingerprint, User, Search, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { BiometricLogin } from "../auth/BiometricLogin";
@@ -21,10 +18,15 @@ interface PatientData {
   ultimoAtendimento?: string;
 }
 
-export const IdentificacaoMunicipe: React.FC = () => {
+interface IdentificacaoMunicipeProps {
+  onMunicipeIdentificado?: (patient: PatientData) => void;
+}
+
+export const IdentificacaoMunicipe: React.FC<IdentificacaoMunicipeProps> = ({ 
+  onMunicipeIdentificado 
+}) => {
   const [selectedPatient, setSelectedPatient] = useState<PatientData | null>(null);
   const [showBiometric, setShowBiometric] = useState(false);
-  const [searchMethod, setSearchMethod] = useState<'biometria' | 'manual'>('biometria');
   const { toast } = useToast();
 
   const handlePatientIdentified = (patientData: any) => {
@@ -46,6 +48,11 @@ export const IdentificacaoMunicipe: React.FC = () => {
       title: "Munícipe Identificado",
       description: `${patient.nome} foi identificado com sucesso!`,
     });
+
+    // Se há callback, chama automaticamente
+    if (onMunicipeIdentificado) {
+      onMunicipeIdentificado(patient);
+    }
   };
 
   const handlePatientSearch = (patient: any) => {
@@ -61,16 +68,21 @@ export const IdentificacaoMunicipe: React.FC = () => {
     };
     
     setSelectedPatient(patientData);
+    
+    // Se há callback, chama automaticamente
+    if (onMunicipeIdentificado) {
+      onMunicipeIdentificado(patientData);
+    }
   };
 
   const handleConfirmarAtendimento = () => {
-    if (selectedPatient) {
+    if (selectedPatient && onMunicipeIdentificado) {
+      onMunicipeIdentificado(selectedPatient);
+    } else if (selectedPatient) {
       toast({
         title: "Atendimento Confirmado",
         description: `${selectedPatient.nome} foi direcionado para o atendimento.`,
       });
-      
-      // Aqui você pode implementar a lógica para direcionar para o próximo passo
       setSelectedPatient(null);
     }
   };
@@ -90,10 +102,7 @@ export const IdentificacaoMunicipe: React.FC = () => {
           </CardHeader>
           <CardContent>
             <Button 
-              onClick={() => {
-                setSearchMethod('biometria');
-                setShowBiometric(true);
-              }}
+              onClick={() => setShowBiometric(true)}
               className="w-full"
               size="lg"
             >
@@ -131,7 +140,7 @@ export const IdentificacaoMunicipe: React.FC = () => {
         </Card>
       </div>
 
-      {selectedPatient && (
+      {selectedPatient && !onMunicipeIdentificado && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-green-600">

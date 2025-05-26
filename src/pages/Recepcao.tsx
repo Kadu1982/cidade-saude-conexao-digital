@@ -6,27 +6,32 @@ import { IdentificacaoMunicipe } from "@/components/recepcao/IdentificacaoMunici
 import { NovoCadastro } from "@/components/recepcao/NovoCadastro";
 import { AtualizacaoCadastro } from "@/components/recepcao/AtualizacaoCadastro";
 import { ConfiguracaoRecepcao } from "@/components/recepcao/ConfiguracaoRecepcao";
+import { DirecionamentoAtendimento } from "@/components/recepcao/DirecionamentoAtendimento";
 
 const Recepcao = () => {
   return (
     <div className="container mx-auto py-6">
-      <h1 className="text-3xl font-bold mb-6">Recepção</h1>
+      <h1 className="text-3xl font-bold mb-6">Recepção da Unidade</h1>
       
       <Card>
         <CardHeader>
-          <CardTitle>Atendimento na Recepção</CardTitle>
+          <CardTitle>Sistema de Recepção Integrado</CardTitle>
           <CardDescription>
-            Identificação e cadastro de munícipes com biometria
+            Identificação, cadastro e direcionamento de munícipes com biometria
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="identificacao" className="w-full">
-            <TabsList className="grid grid-cols-4 mb-4">
-              <TabsTrigger value="identificacao">Identificar Munícipe</TabsTrigger>
-              <TabsTrigger value="novo-cadastro">Novo Cadastro</TabsTrigger>
-              <TabsTrigger value="atualizacao">Atualizar Cadastro</TabsTrigger>
+          <Tabs defaultValue="atendimento" className="w-full">
+            <TabsList className="grid grid-cols-5 mb-4">
+              <TabsTrigger value="atendimento">Atendimento</TabsTrigger>
+              <TabsTrigger value="identificacao">Identificar</TabsTrigger>
+              <TabsTrigger value="novo-cadastro">Cadastrar</TabsTrigger>
+              <TabsTrigger value="atualizacao">Atualizar</TabsTrigger>
               <TabsTrigger value="configuracao">Configurações</TabsTrigger>
             </TabsList>
+            <TabsContent value="atendimento">
+              <DirecionamentoAtendimento />
+            </TabsContent>
             <TabsContent value="identificacao">
               <IdentificacaoMunicipe />
             </TabsContent>

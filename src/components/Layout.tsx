@@ -1,10 +1,8 @@
-
 import React from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
-  Users,
   Calendar,
   Stethoscope,
   Pill,
@@ -33,7 +31,6 @@ const Layout: React.FC = () => {
   const menuItems = [
     { href: "/dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} />, permission: "dashboard" },
     { href: "/recepcao", label: "Recepção", icon: <UserCheck size={20} />, permission: "recepcao" },
-    { href: "/cadastro", label: "Cadastro", icon: <Users size={20} />, permission: "cadastro" },
     { href: "/agendamento", label: "Agendamento", icon: <Calendar size={20} />, permission: "agendamento" },
     { href: "/atendimento-medico", label: "Atend. Médico", icon: <Stethoscope size={20} />, permission: "atendimento-medico" },
     { href: "/atendimento-odontologico", label: "Atend. Odontológico", icon: <Pill size={20} />, permission: "atendimento-odontologico" },
