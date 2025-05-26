@@ -25,28 +25,44 @@ import { DuplicateValidation } from "./DuplicateValidation";
 import { ValidationSettings } from "./ValidationSettings";
 import { ValidationResult, ValidationConfig } from "@/services/duplicateValidationService";
 
-const formSchema = z.object({
-  nome: z.string().min(3, "Nome deve ter pelo menos 3 caracteres"),
-  dataNascimento: z.string().min(1, "Data de nascimento é obrigatória"),
-  cpf: z.string().min(11, "CPF inválido").max(14, "CPF inválido").optional().or(z.literal("")),
-  cartaoSus: z.string().min(15, "Cartão SUS inválido"),
-  sexo: z.enum(["masculino", "feminino", "outro"]),
-  endereco: z.string().min(5, "Endereço deve ter pelo menos 5 caracteres"),
-  telefone: z.string().min(10, "Telefone inválido"),
-  email: z.string().email("Email inválido").optional().or(z.literal("")),
-  nomeMae: z.string().min(3, "Nome da mãe deve ter pelo menos 3 caracteres"),
-  cpfMae: z.string().min(11, "CPF da mãe inválido").max(14, "CPF da mãe inválido"),
-});
+const createFormSchema = (validateNewborns: boolean) => {
+  const baseSchema = {
+    nome: z.string().min(3, "Nome deve ter pelo menos 3 caracteres"),
+    dataNascimento: z.string().min(1, "Data de nascimento é obrigatória"),
+    cpf: z.string().min(11, "CPF inválido").max(14, "CPF inválido").optional().or(z.literal("")),
+    cartaoSus: z.string().min(15, "Cartão SUS inválido"),
+    sexo: z.enum(["masculino", "feminino", "outro"]),
+    endereco: z.string().min(5, "Endereço deve ter pelo menos 5 caracteres"),
+    telefone: z.string().min(10, "Telefone inválido"),
+    email: z.string().email("Email inválido").optional().or(z.literal("")),
+  };
+
+  if (validateNewborns) {
+    return z.object({
+      ...baseSchema,
+      nomeMae: z.string().min(3, "Nome da mãe deve ter pelo menos 3 caracteres"),
+      cpfMae: z.string().min(11, "CPF da mãe inválido").max(14, "CPF da mãe inválido"),
+    });
+  }
+
+  return z.object({
+    ...baseSchema,
+    nomeMae: z.string().optional().or(z.literal("")),
+    cpfMae: z.string().optional().or(z.literal("")),
+  });
+};
 
 export const CadastroForm = () => {
   const { toast } = useToast();
   const [showValidation, setShowValidation] = useState(false);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [validationConfig, setValidationConfig] = useState<ValidationConfig>({
-    enableValidation: true, // Sempre habilitado
-    validateNewborns: true,
-    validateWithoutCPF: true, // Sempre habilitado
+    enableValidation: true,
+    validateNewborns: false, // Iniciar sempre desligado
+    validateWithoutCPF: true,
   });
+
+  const formSchema = createFormSchema(validationConfig.validateNewborns);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -64,7 +80,7 @@ export const CadastroForm = () => {
     },
   });
 
-  const shouldValidate = (values: z.infer<typeof formSchema>) => {
+  const shouldValidate = (values: any) => {
     // Sempre valida, exceto para recém-nascidos quando o toggle está desabilitado
     const birthDate = new Date(values.dataNascimento);
     const now = new Date();
@@ -80,7 +96,7 @@ export const CadastroForm = () => {
     return true;
   };
 
-  const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
+  const handleFormSubmit = (values: any) => {
     console.log('Dados do formulário:', values);
     
     if (shouldValidate(values)) {
@@ -107,7 +123,7 @@ export const CadastroForm = () => {
     finalizeCadastro(formValues);
   };
 
-  const finalizeCadastro = (values: z.infer<typeof formSchema>) => {
+  const finalizeCadastro = (values: any) => {
     console.log('Finalizando cadastro:', values);
     toast({
       title: "Cadastro realizado com sucesso",
@@ -123,14 +139,28 @@ export const CadastroForm = () => {
     setValidationResult(null);
   };
 
+  const handleConfigChange = (newConfig: ValidationConfig) => {
+    setValidationConfig(newConfig);
+    
+    // Recrear o form com o novo schema quando o toggle mudar
+    const newSchema = createFormSchema(newConfig.validateNewborns);
+    form.clearErrors();
+    
+    // Se desabilitou o toggle, limpar os campos da mãe
+    if (!newConfig.validateNewborns) {
+      form.setValue('nomeMae', '');
+      form.setValue('cpfMae', '');
+    }
+  };
+
   if (showValidation) {
     const formValues = form.getValues();
     return (
       <DuplicateValidation
         patientData={{
           nome: formValues.nome,
-          nomeMae: formValues.nomeMae,
-          cpfMae: formValues.cpfMae,
+          nomeMae: formValues.nomeMae || '',
+          cpfMae: formValues.cpfMae || '',
         }}
         validationConfig={validationConfig}
         onValidationComplete={handleValidationComplete}
@@ -161,7 +191,7 @@ export const CadastroForm = () => {
               <div className="mt-3">
                 <ValidationSettings 
                   config={validationConfig}
-                  onConfigChange={setValidationConfig}
+                  onConfigChange={handleConfigChange}
                 />
               </div>
             </div>
@@ -273,39 +303,43 @@ export const CadastroForm = () => {
               )}
             />
             
-            {/* Novos campos para validação de duplicatas */}
-            <FormField
-              control={form.control}
-              name="nomeMae"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome da Mãe</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Nome completo da mãe" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Obrigatório para validação de duplicatas
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="cpfMae"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>CPF da Mãe</FormLabel>
-                  <FormControl>
-                    <Input placeholder="000.000.000-00" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Obrigatório para validação de duplicatas
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Campos da mãe - só aparecem quando o toggle está acionado */}
+            {validationConfig.validateNewborns && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="nomeMae"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome da Mãe</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nome completo da mãe" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Obrigatório para validação de duplicatas
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="cpfMae"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>CPF da Mãe</FormLabel>
+                      <FormControl>
+                        <Input placeholder="000.000.000-00" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Obrigatório para validação de duplicatas
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
           </div>
           
           <div className="flex justify-end">

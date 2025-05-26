@@ -28,7 +28,7 @@ export const ValidationSettings: React.FC<ValidationSettingsProps> = ({
         onCheckedChange={handleToggleNewborns}
       />
       <Label htmlFor="validateNewborns">
-        Validar recém-nascidos (menos de 1 ano)
+        Habilitar validação de recém-nascidos (exibe campos da mãe)
       </Label>
     </div>
   );
