@@ -9,7 +9,6 @@ export interface User {
   role: UserRole;
   unidadeSaude?: string;
   permissions: string[];
-  cns?: string; // Cartão Nacional de Saúde
   crmCoren?: string; // CRM para médicos, COREN para enfermeiros
   perfis?: string[]; // Perfis adicionais do usuário
 }
@@ -24,7 +23,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users seguindo diretrizes PNAB
+// Mock users seguindo diretrizes do sistema
 const mockUsers: { [key: string]: User } = {
   'admin@saude.gov': {
     id: '1',
@@ -32,7 +31,6 @@ const mockUsers: { [key: string]: User } = {
     email: 'admin@saude.gov',
     role: 'admin',
     permissions: ['*'], // Admin tem todos os acessos
-    cns: '123456789012345',
     perfis: ['admin', 'ia', 'estoque']
   },
   'medico1@saude.gov': {
@@ -42,7 +40,6 @@ const mockUsers: { [key: string]: User } = {
     role: 'medico',
     unidadeSaude: 'UBS Centro',
     permissions: ['atendimento-medico', 'agenda', 'prontuario', 'dashboard'],
-    cns: '234567890123456',
     crmCoren: 'CRM/SP 123456',
     perfis: ['medico', 'ia']
   },
@@ -53,7 +50,6 @@ const mockUsers: { [key: string]: User } = {
     role: 'medico',
     unidadeSaude: 'UBS Jardim das Flores',
     permissions: ['atendimento-medico', 'agenda', 'prontuario', 'dashboard'],
-    cns: '345678901234567',
     crmCoren: 'CRM/SP 234567',
     perfis: ['medico']
   },
@@ -64,7 +60,6 @@ const mockUsers: { [key: string]: User } = {
     role: 'enfermeiro',
     unidadeSaude: 'UBS Centro',
     permissions: ['vacinas', 'triagem', 'curativos', 'dashboard'],
-    cns: '456789012345678',
     crmCoren: 'COREN/SP 345678',
     perfis: ['enfermeiro', 'triagem']
   },
@@ -75,7 +70,6 @@ const mockUsers: { [key: string]: User } = {
     role: 'farmaceutico',
     unidadeSaude: 'UBS Centro',
     permissions: ['farmacia', 'dispensacao', 'estoque', 'dashboard'],
-    cns: '567890123456789',
     crmCoren: 'CRF/SP 12345',
     perfis: ['farmaceutico', 'estoque']
   }
