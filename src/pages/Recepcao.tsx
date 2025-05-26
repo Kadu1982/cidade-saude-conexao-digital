@@ -2,9 +2,7 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { IdentificacaoMunicipe } from "@/components/recepcao/IdentificacaoMunicipe";
 import { NovoCadastro } from "@/components/recepcao/NovoCadastro";
-import { AtualizacaoCadastro } from "@/components/recepcao/AtualizacaoCadastro";
 import { ConfiguracaoRecepcao } from "@/components/recepcao/ConfiguracaoRecepcao";
 import { DirecionamentoAtendimento } from "@/components/recepcao/DirecionamentoAtendimento";
 
@@ -17,29 +15,21 @@ const Recepcao = () => {
         <CardHeader>
           <CardTitle>Sistema de Recepção Integrado</CardTitle>
           <CardDescription>
-            Identificação, cadastro e direcionamento de munícipes com biometria
+            Atendimento, cadastro e direcionamento de munícipes
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="atendimento" className="w-full">
-            <TabsList className="grid grid-cols-5 mb-4">
+            <TabsList className="grid grid-cols-3 mb-4">
               <TabsTrigger value="atendimento">Atendimento</TabsTrigger>
-              <TabsTrigger value="identificacao">Identificar</TabsTrigger>
               <TabsTrigger value="novo-cadastro">Cadastrar</TabsTrigger>
-              <TabsTrigger value="atualizacao">Atualizar</TabsTrigger>
               <TabsTrigger value="configuracao">Configurações</TabsTrigger>
             </TabsList>
             <TabsContent value="atendimento">
               <DirecionamentoAtendimento />
             </TabsContent>
-            <TabsContent value="identificacao">
-              <IdentificacaoMunicipe />
-            </TabsContent>
             <TabsContent value="novo-cadastro">
               <NovoCadastro />
-            </TabsContent>
-            <TabsContent value="atualizacao">
-              <AtualizacaoCadastro />
             </TabsContent>
             <TabsContent value="configuracao">
               <ConfiguracaoRecepcao />

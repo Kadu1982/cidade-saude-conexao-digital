@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Label } from "@/components/ui/label";
 import { 
   Stethoscope, 
   TestTube, 
@@ -14,11 +15,15 @@ import {
   Clock,
   MapPin,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Fingerprint,
+  Search,
+  Edit
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { IdentificacaoMunicipe } from "./IdentificacaoMunicipe";
+import { BiometricLogin } from "../auth/BiometricLogin";
+import PatientSearch from "../shared/PatientSearch";
 
 interface ServicoDisponivel {
   id: string;
@@ -33,14 +38,19 @@ interface ServicoDisponivel {
 interface MunicipeIdentificado {
   id: string;
   nome: string;
+  cpf: string;
   cartaoSus: string;
-  agendamentos?: any[];
+  dataNascimento: string;
+  endereco: string;
+  telefone: string;
+  ultimoAtendimento?: string;
 }
 
 export const DirecionamentoAtendimento: React.FC = () => {
   const [municipeIdentificado, setMunicipeIdentificado] = useState<MunicipeIdentificado | null>(null);
   const [servicoSelecionado, setServicoSelecionado] = useState<string | null>(null);
-  const [showIdentificacao, setShowIdentificacao] = useState(true);
+  const [showBiometric, setShowBiometric] = useState(false);
+  const [modoEdicao, setModoEdicao] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -93,19 +103,40 @@ export const DirecionamentoAtendimento: React.FC = () => {
     }
   ];
 
-  const handleMunicipeIdentificado = (municipe: any) => {
-    setMunicipeIdentificado({
-      id: municipe.id,
-      nome: municipe.nome,
-      cartaoSus: municipe.cartaoSus,
-      agendamentos: [] // Aqui viriam os agendamentos do dia
-    });
-    setShowIdentificacao(false);
+  const handlePatientIdentified = (patientData: any) => {
+    const patient: MunicipeIdentificado = {
+      id: patientData.id,
+      nome: patientData.nome || patientData.name,
+      cpf: patientData.cpf || "123.456.789-00",
+      cartaoSus: patientData.cartaoSus,
+      dataNascimento: patientData.dataNascimento || "1985-05-15",
+      endereco: patientData.endereco || "Rua das Flores, 123",
+      telefone: patientData.telefone || "(11) 98765-4321",
+      ultimoAtendimento: patientData.ultimoAtendimento || "2024-05-20"
+    };
+    
+    setMunicipeIdentificado(patient);
+    setShowBiometric(false);
     
     toast({
       title: "Munícipe Identificado",
-      description: `${municipe.nome} foi identificado. Selecione o serviço desejado.`,
+      description: `${patient.nome} foi identificado com sucesso!`,
     });
+  };
+
+  const handlePatientSearch = (patient: any) => {
+    const patientData: MunicipeIdentificado = {
+      id: patient.id,
+      nome: patient.name,
+      cpf: "123.456.789-00",
+      cartaoSus: patient.cartaoSus,
+      dataNascimento: "1985-05-15",
+      endereco: "Rua das Flores, 123",
+      telefone: "(11) 98765-4321",
+      ultimoAtendimento: "2024-05-18"
+    };
+    
+    setMunicipeIdentificado(patientData);
   };
 
   const handleSelecionarServico = (servicoId: string) => {
@@ -122,12 +153,26 @@ export const DirecionamentoAtendimento: React.FC = () => {
       setTimeout(() => {
         setMunicipeIdentificado(null);
         setServicoSelecionado(null);
-        setShowIdentificacao(true);
+        setModoEdicao(false);
       }, 2000);
     }
   };
 
-  if (showIdentificacao) {
+  const handleSalvarEdicao = () => {
+    setModoEdicao(false);
+    toast({
+      title: "Dados Atualizados",
+      description: `Os dados de ${municipeIdentificado?.nome} foram atualizados com sucesso!`,
+    });
+  };
+
+  const novaIdentificacao = () => {
+    setMunicipeIdentificado(null);
+    setServicoSelecionado(null);
+    setModoEdicao(false);
+  };
+
+  if (!municipeIdentificado) {
     return (
       <div className="space-y-6">
         <Alert>
@@ -138,17 +183,74 @@ export const DirecionamentoAtendimento: React.FC = () => {
           </AlertDescription>
         </Alert>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Identificação do Munícipe</CardTitle>
-            <CardDescription>
-              Identifique o munícipe para direcioná-lo ao serviço adequado
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <IdentificacaoMunicipe onMunicipeIdentificado={handleMunicipeIdentificado} />
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Fingerprint className="h-5 w-5" />
+                Identificação por Biometria
+              </CardTitle>
+              <CardDescription>
+                Método recomendado para identificação rápida e segura
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => setShowBiometric(true)}
+                className="w-full"
+                size="lg"
+              >
+                <Fingerprint className="mr-2 h-5 w-5" />
+                Identificar por Biometria
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Search className="h-5 w-5" />
+                Busca Manual
+              </CardTitle>
+              <CardDescription>
+                Para casos onde a biometria não esteja disponível
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <PatientSearch 
+                  onSelectPatient={handlePatientSearch}
+                  placeholder="Buscar por nome ou cartão SUS..."
+                />
+                
+                <div className="text-sm text-amber-600 flex items-start gap-2">
+                  <AlertCircle className="h-4 w-4 mt-0.5" />
+                  <span>
+                    A busca manual deve ser usada apenas quando a biometria não estiver disponível.
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {showBiometric && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+              <BiometricLogin
+                mode="patient_identification"
+                onPatientIdentified={handlePatientIdentified}
+              />
+              <Button 
+                variant="outline" 
+                onClick={() => setShowBiometric(false)}
+                className="w-full mt-4"
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -165,73 +267,126 @@ export const DirecionamentoAtendimento: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Serviços Disponíveis</CardTitle>
-          <CardDescription>
-            Selecione o serviço que o munícipe necessita
-          </CardDescription>
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center gap-2 text-green-600">
+              <User className="h-5 w-5" />
+              Dados do Munícipe
+            </span>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setModoEdicao(!modoEdicao)}
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              {modoEdicao ? 'Cancelar' : 'Editar'}
+            </Button>
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {servicosDisponiveis.map((servico) => (
-              <Card 
-                key={servico.id}
-                className={`cursor-pointer transition-all ${
-                  servicoSelecionado === servico.id ? 'ring-2 ring-primary' : 'hover:shadow-md'
-                } ${!servico.disponivel ? 'opacity-50' : ''}`}
-                onClick={() => servico.disponivel && handleSelecionarServico(servico.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    {servico.icon}
-                    <h3 className="font-semibold">{servico.nome}</h3>
-                  </div>
-                  
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-gray-500" />
-                      <span>Tempo: {servico.tempoEspera}</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-gray-500" />
-                      <span>Fila: {servico.fila} pessoas</span>
-                    </div>
-                    
-                    {servico.sala && (
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-gray-500" />
-                        <span>{servico.sala}</span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="mt-3">
-                    {servico.disponivel ? (
-                      <Badge className="bg-green-500">Disponível</Badge>
-                    ) : (
-                      <Badge variant="destructive">Indisponível</Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <Label className="font-semibold">Nome</Label>
+              <p>{municipeIdentificado.nome}</p>
+            </div>
+            <div>
+              <Label className="font-semibold">CPF</Label>
+              <p>{municipeIdentificado.cpf}</p>
+            </div>
+            <div>
+              <Label className="font-semibold">Cartão SUS</Label>
+              <p>{municipeIdentificado.cartaoSus}</p>
+            </div>
+            <div>
+              <Label className="font-semibold">Data de Nascimento</Label>
+              <p>{new Date(municipeIdentificado.dataNascimento).toLocaleDateString()}</p>
+            </div>
+            <div>
+              <Label className="font-semibold">Telefone</Label>
+              <p>{municipeIdentificado.telefone}</p>
+            </div>
+            <div>
+              <Label className="font-semibold">Último Atendimento</Label>
+              <p>{municipeIdentificado.ultimoAtendimento ? new Date(municipeIdentificado.ultimoAtendimento).toLocaleDateString() : 'Primeiro atendimento'}</p>
+            </div>
           </div>
+          
+          {modoEdicao && (
+            <div className="flex gap-3 mb-6">
+              <Button onClick={handleSalvarEdicao} className="flex-1">
+                Salvar Alterações
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {!modoEdicao && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Serviços Disponíveis</CardTitle>
+            <CardDescription>
+              Selecione o serviço que o munícipe necessita
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {servicosDisponiveis.map((servico) => (
+                <Card 
+                  key={servico.id}
+                  className={`cursor-pointer transition-all ${
+                    servicoSelecionado === servico.id ? 'ring-2 ring-primary' : 'hover:shadow-md'
+                  } ${!servico.disponivel ? 'opacity-50' : ''}`}
+                  onClick={() => servico.disponivel && handleSelecionarServico(servico.id)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      {servico.icon}
+                      <h3 className="font-semibold">{servico.nome}</h3>
+                    </div>
+                    
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-gray-500" />
+                        <span>Tempo: {servico.tempoEspera}</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-gray-500" />
+                        <span>Fila: {servico.fila} pessoas</span>
+                      </div>
+                      
+                      {servico.sala && (
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-gray-500" />
+                          <span>{servico.sala}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="mt-3">
+                      {servico.disponivel ? (
+                        <Badge className="bg-green-500">Disponível</Badge>
+                      ) : (
+                        <Badge variant="destructive">Indisponível</Badge>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="flex gap-3">
         <Button 
           variant="outline" 
-          onClick={() => {
-            setShowIdentificacao(true);
-            setMunicipeIdentificado(null);
-            setServicoSelecionado(null);
-          }}
+          onClick={novaIdentificacao}
         >
           Nova Identificação
         </Button>
         
-        {servicoSelecionado && (
+        {servicoSelecionado && !modoEdicao && (
           <Button className="flex items-center gap-2">
             <ArrowRight className="h-4 w-4" />
             Confirmar Direcionamento
