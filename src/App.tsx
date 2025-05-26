@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -24,6 +23,8 @@ import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Toaster } from './components/ui/toaster';
 import Recepcao from './pages/Recepcao';
+import Triagem from './pages/Triagem';
+import Estoque from './pages/Estoque';
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,11 @@ function App() {
                   <Recepcao />
                 </ProtectedRoute>
               } />
+              <Route path="triagem" element={
+                <ProtectedRoute>
+                  <Triagem />
+                </ProtectedRoute>
+              } />
               <Route path="agendamento" element={
                 <ProtectedRoute>
                   <Agendamento />
@@ -75,6 +81,11 @@ function App() {
               <Route path="farmacia" element={
                 <ProtectedRoute>
                   <Farmacia />
+                </ProtectedRoute>
+              } />
+              <Route path="estoque" element={
+                <ProtectedRoute>
+                  <Estoque />
                 </ProtectedRoute>
               } />
               <Route path="faturamento" element={
