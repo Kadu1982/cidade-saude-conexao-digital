@@ -15,7 +15,7 @@ import {
   User,
   MapPin 
 } from "lucide-react";
-import { PatientSearch } from "@/components/shared/PatientSearch";
+import PatientSearch from "@/components/shared/PatientSearch";
 import { baseCadastro } from "@/services/baseCadastro";
 
 export const CidadaoManifestacao = () => {
@@ -265,9 +265,9 @@ export const CidadaoManifestacao = () => {
                 className="w-full p-3 border rounded-md"
               >
                 <option value="">Selecione uma unidade (opcional)</option>
-                {baseCadastro.buscarUnidades().map((unidade) => (
+                {baseCadastro.buscarTodasUnidades().map((unidade) => (
                   <option key={unidade.id} value={unidade.id}>
-                    {unidade.nome} - {unidade.endereco}
+                    {unidade.nome} - {unidade.endereco.logradouro}, {unidade.endereco.bairro}
                   </option>
                 ))}
               </select>

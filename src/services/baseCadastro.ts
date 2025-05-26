@@ -1,4 +1,3 @@
-
 // Base única de cadastro para centralizar todas as informações do sistema
 export interface Paciente {
   id: string;
@@ -217,6 +216,11 @@ export class BaseCadastroService {
   buscarUnidadesPorTipo(tipo: UnidadeSaude['tipo']): UnidadeSaude[] {
     return Array.from(this.unidades.values())
       .filter(u => u.tipo === tipo && u.ativo);
+  }
+
+  buscarTodasUnidades(): UnidadeSaude[] {
+    return Array.from(this.unidades.values())
+      .filter(u => u.ativo);
   }
 
   // Métodos para Agendas
