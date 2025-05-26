@@ -1,32 +1,35 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { QueryClient } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
-import { Layout } from './components/Layout';
-import { Index } from './pages/Index';
-import { Login } from './pages/Login';
-import { Dashboard } from './pages/Dashboard';
-import { Cadastro } from './pages/Cadastro';
-import { Agendamento } from './pages/Agendamento';
-import { AtendimentoMedico } from './pages/AtendimentoMedico';
-import { AtendimentoOdontologico } from './pages/AtendimentoOdontologico';
-import { Exames } from './pages/Exames';
-import { Farmacia } from './pages/Farmacia';
-import { Faturamento } from './pages/Faturamento';
-import { Vacinas } from './pages/Vacinas';
-import { Transporte } from './pages/Transporte';
-import { VigilanciaSanitaria } from './pages/VigilanciaSanitaria';
-import { VigilanciaAmbiental } from './pages/VigilanciaAmbiental';
-import { Epidemiologia } from './pages/Epidemiologia';
-import { Ouvidoria } from './pages/Ouvidoria';
-import { NotFound } from './pages/NotFound';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import Layout from './components/Layout';
+import Index from './pages/Index';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Cadastro from './pages/Cadastro';
+import Agendamento from './pages/Agendamento';
+import AtendimentoMedico from './pages/AtendimentoMedico';
+import AtendimentoOdontologico from './pages/AtendimentoOdontologico';
+import Exames from './pages/Exames';
+import Farmacia from './pages/Farmacia';
+import Faturamento from './pages/Faturamento';
+import Vacinas from './pages/Vacinas';
+import Transporte from './pages/Transporte';
+import VigilanciaSanitaria from './pages/VigilanciaSanitaria';
+import VigilanciaAmbiental from './pages/VigilanciaAmbiental';
+import Epidemiologia from './pages/Epidemiologia';
+import Ouvidoria from './pages/Ouvidoria';
+import NotFound from './pages/NotFound';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Toaster } from './components/ui/toaster';
 import Recepcao from './pages/Recepcao';
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
-    <QueryClient>
+    <QueryClientProvider client={queryClient}>
       <Toaster />
       <AuthProvider>
         <BrowserRouter>
@@ -114,7 +117,7 @@ function App() {
           </Routes>
         </BrowserRouter>
       </AuthProvider>
-    </QueryClient>
+    </QueryClientProvider>
   );
 }
 
