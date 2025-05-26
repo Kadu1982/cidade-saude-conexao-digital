@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -76,7 +77,7 @@ const Layout: React.FC = () => {
         <div className="flex h-20 items-center justify-center border-b">
           <div className="text-center">
             <h1 className="text-xl font-bold text-primary">SaúdeGov</h1>
-            <p className="text-xs text-gray-500">PNAB 2017</p>
+            <p className="text-xs text-gray-500">Sistema Municipal</p>
           </div>
         </div>
         <nav className="mt-5 px-2 flex-1 overflow-y-auto">
@@ -104,7 +105,6 @@ const Layout: React.FC = () => {
           <div className="p-4 border-t bg-gray-50">
             <div className="text-xs text-gray-600">
               <p className="font-medium">{user.name}</p>
-              <p>CNS: {user.cns}</p>
               {user.crmCoren && <p>{user.crmCoren}</p>}
               <p className="text-gray-400">{user.unidadeSaude}</p>
             </div>
@@ -122,7 +122,7 @@ const Layout: React.FC = () => {
                 <div className="flex flex-col">
                   <span className="text-sm font-medium">{user.name}</span>
                   <span className="text-xs text-gray-500">
-                    {user.role} - CNS: {user.cns}
+                    {user.role}
                   </span>
                 </div>
               </div>
