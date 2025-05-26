@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { User } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { baseCadrastro, Paciente } from "@/services/baseCadastro";
+import { baseCadastro, Paciente } from "@/services/baseCadastro";
 
 interface PatientSearchProps {
   onSelectPatient: (patient: { name: string, cartaoSus: string }) => void;

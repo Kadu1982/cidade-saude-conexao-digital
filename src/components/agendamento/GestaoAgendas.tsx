@@ -41,7 +41,7 @@ export const GestaoAgendas = () => {
   };
 
   const bloquearAgenda = (agendaId: string) => {
-    const agenda = baseCadrastro.buscarAgenda(agendaId);
+    const agenda = baseCadastro.buscarAgenda(agendaId);
     if (agenda) {
       agenda.bloqueada = !agenda.bloqueada;
       agenda.motivoBloqueio = agenda.bloqueada ? "Bloqueio manual" : undefined;
