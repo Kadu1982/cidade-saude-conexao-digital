@@ -1,0 +1,810 @@
+
+openapi: 3.0.3
+info:
+  title: Sistema SUS - API Backend
+  description: API completa para o Sistema Municipal de Saúde SUS
+  version: 1.0.0
+  contact:
+    name: Equipe de Desenvolvimento SUS
+    email: dev@saudesus.gov.br
+
+servers:
+  - url: http://localhost:3000/api
+    description: Desenvolvimento local
+  - url: https://api.saudesus.gov.br/v1
+    description: Produção
+
+paths:
+  # Autenticação
+  /auth/login:
+    post:
+      tags: [Autenticação]
+      summary: Login do usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+              required: [email, password]
+      responses:
+        '200':
+          description: Login realizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Credenciais inválidas
+
+  /auth/logout:
+    post:
+      tags: [Autenticação]
+      summary: Logout do usuário
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout realizado com sucesso
+
+  # Pacientes
+  /pacientes:
+    get:
+      tags: [Pacientes]
+      summary: Listar pacientes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de pacientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Paciente'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags: [Pacientes]
+      summary: Cadastrar novo paciente
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PacienteInput'
+      responses:
+        '201':
+          description: Paciente cadastrado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paciente'
+
+  /pacientes/{id}:
+    get:
+      tags: [Pacientes]
+      summary: Buscar paciente por ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Dados do paciente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paciente'
+
+  /pacientes/buscar:
+    get:
+      tags: [Pacientes]
+      summary: Buscar pacientes por critérios
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cpf
+          in: query
+          schema:
+            type: string
+        - name: cartaoSus
+          in: query
+          schema:
+            type: string
+        - name: nome
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resultados da busca
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Paciente'
+
+  # Agendamentos
+  /agendamentos:
+    get:
+      tags: [Agendamentos]
+      summary: Listar agendamentos
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: data
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: unidadeId
+          in: query
+          schema:
+            type: string
+        - name: profissionalId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de agendamentos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Agendamento'
+
+    post:
+      tags: [Agendamentos]
+      summary: Criar novo agendamento
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgendamentoInput'
+      responses:
+        '201':
+          description: Agendamento criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agendamento'
+
+  # Ouvidoria
+  /ouvidoria/manifestacoes:
+    get:
+      tags: [Ouvidoria]
+      summary: Listar manifestações
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [RECEBIDA, EM_ANALISE, RESPONDIDA, ENCERRADA]
+        - name: tipo
+          in: query
+          schema:
+            type: string
+            enum: [reclamacao, sugestao, elogio, denuncia, informacao]
+      responses:
+        '200':
+          description: Lista de manifestações
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Manifestacao'
+
+    post:
+      tags: [Ouvidoria]
+      summary: Criar nova manifestação
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                tipo:
+                  type: string
+                  enum: [reclamacao, sugestao, elogio, denuncia, informacao]
+                categoria:
+                  type: string
+                descricao:
+                  type: string
+                unidadeRelacionada:
+                  type: string
+                pacienteId:
+                  type: string
+                aceitaTermos:
+                  type: boolean
+                anexos:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+              required: [tipo, categoria, descricao, aceitaTermos]
+      responses:
+        '201':
+          description: Manifestação criada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  protocolo:
+                    type: string
+                  message:
+                    type: string
+
+  /ouvidoria/manifestacoes/{protocolo}:
+    get:
+      tags: [Ouvidoria]
+      summary: Buscar manifestação por protocolo
+      parameters:
+        - name: protocolo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Dados da manifestação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Manifestacao'
+
+  # APAC (Módulo a ser desenvolvido)
+  /apac/gerar:
+    post:
+      tags: [APAC]
+      summary: Gerar nova APAC
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/APACInput'
+      responses:
+        '201':
+          description: APAC gerada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APAC'
+
+  /apac/paciente/{cns}:
+    get:
+      tags: [APAC]
+      summary: Listar APACs de um paciente
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cns
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de APACs do paciente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/APAC'
+
+  # Unidades de Saúde
+  /unidades:
+    get:
+      tags: [Unidades]
+      summary: Listar unidades de saúde
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de unidades
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UnidadeSaude'
+
+  # Profissionais
+  /profissionais:
+    get:
+      tags: [Profissionais]
+      summary: Listar profissionais
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: especialidade
+          in: query
+          schema:
+            type: string
+        - name: unidadeId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de profissionais
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Profissional'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [admin, medico, enfermeiro, recepcionista, ouvidor]
+        unidadeSaude:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+
+    Paciente:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        cpf:
+          type: string
+        cartaoSus:
+          type: string
+        dataNascimento:
+          type: string
+          format: date
+        sexo:
+          type: string
+          enum: [M, F]
+        telefone:
+          type: string
+        email:
+          type: string
+        endereco:
+          $ref: '#/components/schemas/Endereco'
+        dadosClinicos:
+          $ref: '#/components/schemas/DadosClinicos'
+        prioridade:
+          type: string
+          enum: [normal, prioritario, urgente]
+        criadoEm:
+          type: string
+          format: date-time
+        atualizadoEm:
+          type: string
+          format: date-time
+
+    PacienteInput:
+      type: object
+      properties:
+        nome:
+          type: string
+          minLength: 2
+        cpf:
+          type: string
+          pattern: '^[0-9]{11}$'
+        cartaoSus:
+          type: string
+          pattern: '^[0-9]{15}$'
+        dataNascimento:
+          type: string
+          format: date
+        sexo:
+          type: string
+          enum: [M, F]
+        telefone:
+          type: string
+        email:
+          type: string
+          format: email
+        endereco:
+          $ref: '#/components/schemas/EnderecoInput'
+      required: [nome, cpf, cartaoSus, dataNascimento, sexo]
+
+    Endereco:
+      type: object
+      properties:
+        logradouro:
+          type: string
+        numero:
+          type: string
+        complemento:
+          type: string
+        bairro:
+          type: string
+        cidade:
+          type: string
+        uf:
+          type: string
+        cep:
+          type: string
+
+    EnderecoInput:
+      type: object
+      properties:
+        logradouro:
+          type: string
+          minLength: 5
+        numero:
+          type: string
+        complemento:
+          type: string
+        bairro:
+          type: string
+          minLength: 2
+        cidade:
+          type: string
+          minLength: 2
+        uf:
+          type: string
+          pattern: '^[A-Z]{2}$'
+        cep:
+          type: string
+          pattern: '^[0-9]{8}$'
+      required: [logradouro, numero, bairro, cidade, uf, cep]
+
+    DadosClinicos:
+      type: object
+      properties:
+        tipoSanguineo:
+          type: string
+        alergias:
+          type: array
+          items:
+            type: string
+        medicamentosEmUso:
+          type: array
+          items:
+            type: string
+        condicoesCronicas:
+          type: array
+          items:
+            type: string
+
+    UnidadeSaude:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        cnpj:
+          type: string
+        cnes:
+          type: string
+        tipo:
+          type: string
+          enum: [UBS, Hospital, Policlinica, CEO, CAPS]
+        endereco:
+          $ref: '#/components/schemas/Endereco'
+        telefone:
+          type: string
+        email:
+          type: string
+        servicos:
+          type: array
+          items:
+            type: string
+        equipamentos:
+          type: array
+          items:
+            type: string
+        ativo:
+          type: boolean
+
+    Profissional:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        cpf:
+          type: string
+        cns:
+          type: string
+        registro:
+          type: string
+        especialidades:
+          type: array
+          items:
+            type: string
+        unidades:
+          type: array
+          items:
+            type: string
+        horarios:
+          type: array
+          items:
+            $ref: '#/components/schemas/HorarioProfissional'
+        ativo:
+          type: boolean
+
+    HorarioProfissional:
+      type: object
+      properties:
+        diaSemana:
+          type: integer
+          minimum: 0
+          maximum: 6
+        horaInicio:
+          type: string
+          pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'
+        horaFim:
+          type: string
+          pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'
+        intervalos:
+          type: array
+          items:
+            type: object
+            properties:
+              inicio:
+                type: string
+              fim:
+                type: string
+
+    Agendamento:
+      type: object
+      properties:
+        id:
+          type: string
+        pacienteId:
+          type: string
+        agendaId:
+          type: string
+        data:
+          type: string
+          format: date
+        hora:
+          type: string
+        tipo:
+          type: string
+          enum: [consulta, exame, procedimento]
+        status:
+          type: string
+          enum: [agendado, confirmado, realizado, cancelado, faltou]
+        prioridade:
+          type: string
+          enum: [normal, prioritario, urgente]
+        observacoes:
+          type: string
+        protocoloSus:
+          type: string
+        codigoConfirmacao:
+          type: string
+        qrCode:
+          type: string
+        notificacaoEnviada:
+          type: boolean
+
+    AgendamentoInput:
+      type: object
+      properties:
+        pacienteId:
+          type: string
+        data:
+          type: string
+          format: date
+        hora:
+          type: string
+        tipo:
+          type: string
+          enum: [consulta, exame, procedimento]
+        especialidade:
+          type: string
+        profissionalId:
+          type: string
+        unidadeId:
+          type: string
+        prioridade:
+          type: string
+          enum: [normal, prioritario, urgente]
+        observacoes:
+          type: string
+      required: [pacienteId, data, hora, tipo, especialidade, unidadeId]
+
+    Manifestacao:
+      type: object
+      properties:
+        id:
+          type: string
+        protocolo:
+          type: string
+        tipo:
+          type: string
+          enum: [reclamacao, sugestao, elogio, denuncia, informacao]
+        categoria:
+          type: string
+        descricao:
+          type: string
+        unidadeRelacionada:
+          type: string
+        pacienteId:
+          type: string
+        status:
+          type: string
+          enum: [RECEBIDA, EM_ANALISE, RESPONDIDA, ENCERRADA]
+        anexos:
+          type: array
+          items:
+            type: string
+        resposta:
+          type: string
+        dataRegistro:
+          type: string
+          format: date-time
+        dataResposta:
+          type: string
+          format: date-time
+        responsavelResposta:
+          type: string
+
+    APAC:
+      type: object
+      properties:
+        id:
+          type: string
+        numero:
+          type: string
+        tipo:
+          type: string
+          enum: [inicial, continuacao, unica]
+        pacienteId:
+          type: string
+        cns:
+          type: string
+        cid10:
+          type: string
+        procedimento:
+          type: string
+        unidadeId:
+          type: string
+        cnes:
+          type: string
+        profissionalId:
+          type: string
+        dataInicio:
+          type: string
+          format: date
+        dataFim:
+          type: string
+          format: date
+        competencia:
+          type: string
+          pattern: '^[0-9]{2}-[0-9]{4}$'
+        status:
+          type: string
+          enum: [gerada, validada, enviada, rejeitada]
+        observacoes:
+          type: string
+        arquivoPdf:
+          type: string
+        criadaEm:
+          type: string
+          format: date-time
+
+    APACInput:
+      type: object
+      properties:
+        tipo:
+          type: string
+          enum: [inicial, continuacao, unica]
+        pacienteId:
+          type: string
+        cns:
+          type: string
+        cid10:
+          type: string
+        procedimento:
+          type: string
+        unidadeId:
+          type: string
+        profissionalId:
+          type: string
+        dataInicio:
+          type: string
+          format: date
+        dataFim:
+          type: string
+          format: date
+        observacoes:
+          type: string
+      required: [tipo, pacienteId, cns, cid10, procedimento, unidadeId, profissionalId, dataInicio]
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object

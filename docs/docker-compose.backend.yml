@@ -1,0 +1,125 @@
+
+version: '3.8'
+
+services:
+  # Banco de Dados PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: sus_postgres
+    environment:
+      POSTGRES_DB: sus_database
+      POSTGRES_USER: sus_user
+      POSTGRES_PASSWORD: sus_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - sus_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sus_user -d sus_database"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Backend Flask
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sus_backend
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://sus_user:sus_password@postgres:5432/sus_database
+      - SECRET_KEY=your-secret-key-here
+      - JWT_SECRET_KEY=your-jwt-secret-key
+      - UPLOAD_FOLDER=/app/files
+      - MAX_CONTENT_LENGTH=16777216  # 16MB
+    ports:
+      - "5000:5000"
+    volumes:
+      - shared_files:/app/files
+      - ./backend/logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sus_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # n8n para Orquestração
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: sus_n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin123
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - shared_files:/files
+    networks:
+      - sus_network
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  # Redis para Cache e Sessões
+  redis:
+    image: redis:7-alpine
+    container_name: sus_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - sus_network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  # NGINX como Proxy Reverso
+  nginx:
+    image: nginx:alpine
+    container_name: sus_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - shared_files:/var/www/files:ro
+    depends_on:
+      - backend
+      - n8n
+    networks:
+      - sus_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  n8n_data:
+    driver: local
+  redis_data:
+    driver: local
+  shared_files:
+    driver: local
+
+networks:
+  sus_network:
+    driver: bridge
