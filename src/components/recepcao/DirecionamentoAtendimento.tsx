@@ -54,6 +54,9 @@ export const DirecionamentoAtendimento: React.FC = () => {
   const { toast } = useToast();
   const { user } = useAuth();
 
+  console.log("DirecionamentoAtendimento: user =", user);
+  console.log("DirecionamentoAtendimento: municipeIdentificado =", municipeIdentificado);
+
   // Serviços disponíveis baseados na unidade e permissões do usuário
   const servicosDisponiveis: ServicoDisponivel[] = [
     {
@@ -103,12 +106,21 @@ export const DirecionamentoAtendimento: React.FC = () => {
     }
   ];
 
+  console.log("DirecionamentoAtendimento: servicosDisponiveis =", servicosDisponiveis);
+
   const handlePatientIdentified = (patientData: any) => {
+    console.log("handlePatientIdentified: patientData =", patientData);
+    
+    if (!patientData) {
+      console.error("handlePatientIdentified: patientData is undefined");
+      return;
+    }
+
     const patient: MunicipeIdentificado = {
-      id: patientData.id,
-      nome: patientData.nome || patientData.name,
+      id: patientData.id || "default-id",
+      nome: patientData.nome || patientData.name || "Nome não informado",
       cpf: patientData.cpf || "123.456.789-00",
-      cartaoSus: patientData.cartaoSus,
+      cartaoSus: patientData.cartaoSus || "000000000000000",
       dataNascimento: patientData.dataNascimento || "1985-05-15",
       endereco: patientData.endereco || "Rua das Flores, 123",
       telefone: patientData.telefone || "(11) 98765-4321",
@@ -125,11 +137,18 @@ export const DirecionamentoAtendimento: React.FC = () => {
   };
 
   const handlePatientSearch = (patient: any) => {
+    console.log("handlePatientSearch: patient =", patient);
+    
+    if (!patient) {
+      console.error("handlePatientSearch: patient is undefined");
+      return;
+    }
+
     const patientData: MunicipeIdentificado = {
-      id: patient.id,
-      nome: patient.name,
+      id: patient.id || "default-id",
+      nome: patient.name || "Nome não informado",
       cpf: "123.456.789-00",
-      cartaoSus: patient.cartaoSus,
+      cartaoSus: patient.cartaoSus || "000000000000000",
       dataNascimento: "1985-05-15",
       endereco: "Rua das Flores, 123",
       telefone: "(11) 98765-4321",
@@ -140,6 +159,8 @@ export const DirecionamentoAtendimento: React.FC = () => {
   };
 
   const handleSelecionarServico = (servicoId: string) => {
+    console.log("handleSelecionarServico: servicoId =", servicoId);
+    
     setServicoSelecionado(servicoId);
     const servico = servicosDisponiveis.find(s => s.id === servicoId);
     
@@ -179,7 +200,7 @@ export const DirecionamentoAtendimento: React.FC = () => {
           <User className="h-4 w-4" />
           <AlertDescription>
             <strong>Unidade:</strong> {user?.unidadeSaude || 'UBS Centro'} - 
-            <strong> Recepcionista:</strong> {user?.name}
+            <strong> Recepcionista:</strong> {user?.name || 'Usuário'}
           </AlertDescription>
         </Alert>
 
@@ -330,7 +351,7 @@ export const DirecionamentoAtendimento: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {servicosDisponiveis.map((servico) => (
+              {(servicosDisponiveis || []).map((servico) => (
                 <Card 
                   key={servico.id}
                   className={`cursor-pointer transition-all ${
