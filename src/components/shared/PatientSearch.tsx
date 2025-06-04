@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { baseCadastro, Paciente } from "@/services/baseCadastro";
@@ -28,9 +28,10 @@ const PatientSearch: React.FC<PatientSearchProps> = ({
       setIsSearching(true);
       try {
         // Usar a base única de cadastro para buscar pacientes
-        const results = baseCadastro.buscarPacientesPorNome(searchTerm) || [];
+        const results = baseCadastro.buscarPacientesPorNome(searchTerm);
         console.log("PatientSearch: search results =", results);
-        setFilteredPatients(results);
+        // Ensure results is always an array
+        setFilteredPatients(Array.isArray(results) ? results : []);
       } catch (error) {
         console.error("PatientSearch: error searching patients =", error);
         setFilteredPatients([]);
@@ -68,16 +69,16 @@ const PatientSearch: React.FC<PatientSearchProps> = ({
           onValueChange={handleValueChange}
           className="h-10"
         />
-        {searchTerm.length > 1 && (
-          <CommandGroup className="max-h-64 overflow-auto">
-            <CommandEmpty>
-              {isSearching ? "Buscando..." : "Nenhum paciente encontrado."}
-            </CommandEmpty>
-            {Array.isArray(filteredPatients) && filteredPatients.length > 0 && 
-              filteredPatients.map((patient) => (
+        <CommandList>
+          {searchTerm.length > 1 ? (
+            <CommandGroup>
+              <CommandEmpty>
+                {isSearching ? "Buscando..." : "Nenhum paciente encontrado."}
+              </CommandEmpty>
+              {filteredPatients.map((patient) => (
                 <CommandItem
-                  key={patient.id || patient.nome}
-                  value={patient.nome}
+                  key={patient.id || patient.nome || Math.random()}
+                  value={patient.nome || ""}
                   onSelect={() => handleSelect(patient)}
                   className="flex justify-between py-3 px-2 cursor-pointer hover:bg-gray-100"
                 >
@@ -99,10 +100,12 @@ const PatientSearch: React.FC<PatientSearchProps> = ({
                     )}
                   </div>
                 </CommandItem>
-              ))
-            }
-          </CommandGroup>
-        )}
+              ))}
+            </CommandGroup>
+          ) : (
+            <CommandEmpty>Digite pelo menos 2 caracteres para buscar</CommandEmpty>
+          )}
+        </CommandList>
       </Command>
     </div>
   );
